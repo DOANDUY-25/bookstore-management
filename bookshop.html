@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Booshop - Quản lý bán sách</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{--accent:#0d6efd}
+    body{padding-top:70px}
+    .book-card{transition:transform .15s ease;}
+    .book-card:hover{transform:translateY(-6px)}
+    .hero{background:linear-gradient(90deg, rgba(13,110,253,.08), rgba(13,110,253,.02));border-radius:.6rem;padding:2rem}
+    .category-badge{cursor:pointer}
+    .nav-icon{position:relative}
+    .nav-badge{position:absolute;top:-6px;right:-8px;background:#dc3545;color:#fff;border-radius:50%;padding:2px 6px;font-size:11px}
+    .small-muted{font-size:.9rem;color:#6c757d}
+    footer{padding:2rem 0;margin-top:3rem;border-top:1px solid #e9ecef}
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="#home" data-link>
+        <i class="fa-solid fa-book-open me-2" style="color:var(--accent)"></i>
+        <strong>Booshop</strong>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="#home" data-link>Trang chủ</a></li>
+          <li class="nav-item"><a class="nav-link" href="#categories" data-link>Danh mục</a></li>
+          <li class="nav-item"><a class="nav-link" href="#new" data-link>Sách mới</a></li>
+          <li class="nav-item"><a class="nav-link" href="#blog" data-link>Bài viết</a></li>
+        </ul>
+        <form class="d-flex me-3" role="search" onsubmit="return false">
+          <input id="searchInput" class="form-control me-2" type="search" placeholder="Tìm sách, tác giả...">
+        </form>
+        <div class="d-flex align-items-center gap-2">
+          <button class="btn btn-outline-secondary" id="favBtn" title="Sách yêu thích"><i class="fa-regular fa-heart"></i></button>
+          <button class="btn btn-outline-secondary position-relative" id="cartBtn" title="Giỏ hàng">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span id="cartCount" class="nav-badge" style="display:none">0</span>
+          </button>
+          <button class="btn btn-primary" id="accountBtn">Tài khoản</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container">
+    <!-- HOME / HERO -->
+    <section id="home" class="mb-4">
+      <div class="hero d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+        <div>
+          <h1 class="mb-1">Booshop — cửa hàng sách online</h1>
+          <p class="small-muted">Tìm, yêu thích và mua sách yêu thích của bạn. Quản lý giỏ hàng, tài khoản giả lập và đọc bài viết.</p>
+          <div class="mt-2">
+            <button class="btn btn-outline-primary me-2" onclick="navigateTo('categories')">Khám phá danh mục</button>
+            <button class="btn btn-primary" onclick="navigateTo('new')">Xem sách mới</button>
+          </div>
+        </div>
+        <div style="min-width:280px">
+          <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=ee51b5e6d6b5a8f5f1d4f3a6b0e2a5b6" alt="books" class="img-fluid rounded shadow-sm">
+        </div>
+      </div>
+    </section>
+
+    <!-- CATEGORIES -->
+    <section id="categories" class="mb-5" style="display:none">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Danh mục sách</h3>
+        <div class="small-muted">Chọn một danh mục để lọc</div>
+      </div>
+      <ul class="list-group mb-3" id="categoryListMenu"></ul>
+      <div id="booksGrid" class="row g-3"></div>
+    </section>
+
+    <!-- NEW RELEASES -->
+    <section id="new" class="mb-5" style="display:none">
+      <h3 class="mb-3">Sách mới</h3>
+      <div id="newGrid" class="row g-3"></div>
+    </section>
+
+    <!-- FAVORITES -->
+    <section id="favorites" class="mb-5" style="display:none">
+      <h3 class="mb-3">Sách yêu thích</h3>
+      <div id="favGrid" class="row g-3"></div>
+    </section>
+
+    <!-- BLOG / ARTICLES -->
+    <section id="blog" class="mb-5" style="display:none">
+      <h3 class="mb-3">Bài viết</h3>
+      <div id="posts" class="row gy-3"></div>
+    </section>
+
+    <!-- CART SECTION (hidden when modal used) -->
+    <section id="cart" class="mb-5" style="display:none">
+      <h3 class="mb-3">Giỏ hàng</h3>
+      <div id="cartList"></div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-white">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <h5>Booshop</h5>
+          <p class="small-muted">Cửa hàng sách mẫu — hệ thống quản lý bán sách.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <small class="d-block">© 2025 Booshop</small>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ACCOUNT MODAL -->
+  <div class="modal fade" id="accountModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Tài khoản</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <ul class="nav nav-tabs" id="accTab" role="tablist">
+            <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#loginTab">Đăng nhập</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#registerTab">Đăng ký</button></li>
+          </ul>
+          <div class="tab-content pt-3">
+            <div class="tab-pane fade show active" id="loginTab">
+              <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="mb-2"><input class="form-control" id="loginEmail" placeholder="Email" required></div>
+                <div class="mb-2"><input type="password" class="form-control" id="loginPass" placeholder="Mật khẩu" required></div>
+                <div class="d-flex justify-content-end">
+                  <button class="btn btn-primary">Đăng nhập</button>
+                </div>
+              </form>
+            </div>
+            <div class="tab-pane fade" id="registerTab">
+              <form id="registerForm" onsubmit="handleRegister(event)">
+                <div class="mb-2"><input class="form-control" id="regName" placeholder="Họ và tên" required></div>
+                <div class="mb-2"><input class="form-control" id="regEmail" placeholder="Email" type="email" required></div>
+                <div class="mb-2"><input class="form-control" id="regPass" placeholder="Mật khẩu" type="password" required></div>
+                <div class="d-flex justify-content-end">
+                  <button class="btn btn-success">Tạo tài khoản</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CART OFFCANVAS -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="cartCanvas">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">Giỏ hàng</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body" id="cartCanvasBody"></div>
+    <div class="p-3 border-top d-flex justify-content-between">
+      <strong>Tổng:</strong><strong id="cartTotal">0₫</strong>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // --- Sample data ---
+    const books = [
+      {id:1,title:'Lập trình Java từ cơ bản đến nâng cao',author:'Nguyễn Văn A',category:'CNTT',price:180000,img:'https://picsum.photos/seed/1/400/600',new:true},
+      {id:2,title:'Thiết kế Web hiện đại',author:'Trần Thị B',category:'Thiết kế',price:150000,img:'https://picsum.photos/seed/2/400/600',new:false},
+      {id:3,title:'Kinh tế học cho mọi người',author:'Lê C',category:'Kinh tế',price:120000,img:'https://picsum.photos/seed/3/400/600',new:true},
+      {id:4,title:'Hành trình tư duy tích cực',author:'Phạm D',category:'Phát triển bản thân',price:99000,img:'https://picsum.photos/seed/4/400/600',new:false},
+      {id:5,title:'Toán rực rỡ',author:'Vũ E',category:'Giáo dục',price:80000,img:'https://picsum.photos/seed/5/400/600',new:true}
+    ];
+
+    const posts = [
+      {id:1,title:'5 mẹo để đọc sách hiệu quả',excerpt:'Hướng dẫn nhỏ giúp tăng tốc độ đọc và ghi nhớ.'},
+      {id:2,title:'Xu hướng sách 2025',excerpt:'Những thể loại được dự báo sẽ lên ngôi.'}
+    ];
+
+    // --- State ---
+    let state = {query:'',category:null};
+    const cartKey = 'booshop_cart_v1';
+    const favKey = 'booshop_fav_v1';
+
+    // --- Utilities ---
+    function formatVnd(n){return n.toLocaleString('vi-VN') + '₫'}
+
+    // --- Render categories list ---
+    function renderCategories(){
+      const cats = [...new Set(books.map(b=>b.category))];
+      const container = document.getElementById('categoryListMenu');
+      container.innerHTML = cats.map(c=>`<li class="list-group-item list-group-item-action" onclick="filterByCategory('${c}')">${c}</li>`).join('');
+    }
+
+    function renderBooks(){
+      const grid = document.getElementById('booksGrid');
+      const q = state.query.trim().toLowerCase();
+      const filtered = books.filter(b=>{
+        const matchQ = !q || b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q);
+        const matchC = !state.category || b.category===state.category;
+        return matchQ && matchC;
+      });
+      if(filtered.length===0) grid.innerHTML = '<div class="col-12"><div class="alert alert-warning">Không tìm thấy sách phù hợp.</div></div>';
+      else grid.innerHTML = filtered.map(b=>`
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+          <div class="card book-card h-100">
+            <img src="${b.img}" class="card-img-top" style="height:220px;object-fit:cover">
+            <div class="card-body d-flex flex-column">
+              <h6 class="card-title mb-1">${b.title}</h6>
+              <p class="mb-1 small-muted">${b.author}</p>
+              <div class="mt-auto d-flex justify-content-between align-items-center">
+                <strong>${formatVnd(b.price)}</strong>
+                <div>
+                  <button class="btn btn-sm btn-outline-primary me-1" onclick="addToCart(${b.id})"><i class="fa-solid fa-cart-plus"></i></button>
+                  <button class="btn btn-sm btn-outline-danger" onclick="toggleFav(${b.id}, this)"><i class="fa-regular fa-heart"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // --- New releases ---
+    function renderNew(){
+      const container = document.getElementById('newGrid');
+      const arr = books.filter(b=>b.new);
+      container.innerHTML = arr.map(b=>`
+        <div class="col-12 col-sm-6 col-md-4">
+          <div class="card h-100">
+            <img src="${b.img}" class="card-img-top" style="height:200px;object-fit:cover">
+            <div class="card-body">
+              <h6>${b.title}</h6>
+              <p class="small-muted mb-2">${b.author}</p>
+              <div class="d-flex justify-content-between align-items-center">
+                <strong>${formatVnd(b.price)}</strong>
+                <button class="btn btn-sm btn-primary" onclick="addToCart(${b.id})">Mua</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // --- Favorites ---
+    function getFavs(){return JSON.parse(localStorage.getItem(favKey)||'[]')}
+    function toggleFav(id, btn){
+      const favs = getFavs();
+      const idx = favs.indexOf(id);
+      if(idx>-1) favs.splice(idx,1); else favs.push(id);
+      localStorage.setItem(favKey,JSON.stringify(favs));
+      updateFavUI();
+      if(btn){btn.querySelector('i').className = favs.includes(id)?'fa-solid fa-heart':'fa-regular fa-heart'}
+    }
+    function renderFavs(){
+      const grid = document.getElementById('favGrid');
+      const favs = getFavs();
+      const arr = books.filter(b=>favs.includes(b.id));
+      if(arr.length===0) grid.innerHTML = '<div class="col-12"><div class="alert alert-info">Bạn chưa có sách yêu thích.</div></div>';
+      else grid.innerHTML = arr.map(b=>`
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+          <div class="card h-100">
+            <img src="${b.img}" class="card-img-top" style="height:200px;object-fit:cover">
+            <div class="card-body d-flex flex-column">
+              <h6>${b.title}</h6>
+              <p class="small-muted mb-2">${b.author}</p>
+              <div class="mt-auto d-flex justify-content-between align-items-center">
+                <strong>${formatVnd(b.price)}</strong>
+                <button class="
+
+
+
+
+
+
+
+
+
