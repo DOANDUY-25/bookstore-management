@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng ký tài khoản - Nhà Nam</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    body {
+      background-color: #f9f9f9;
+      font-family: "Segoe UI", sans-serif;
+    }
+    .register-container {
+      max-width: 450px;
+      margin: 60px auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 30px;
+    }
+    .register-container h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      font-weight: 600;
+      color: #333;
+    }
+    .form-control {
+      border-radius: 6px;
+    }
+    .btn-register {
+      width: 100%;
+      background-color: blue;
+      color: white;
+      font-weight: 600;
+      border-radius: 6px;
+      padding: 10px;
+      transition: 0.2s;
+    }
+    .btn-register:hover {
+      background-color: #157347;
+    }
+    .register-footer {
+      text-align: center;
+      margin-top: 15px;
+    }
+    .register-footer a {
+      text-decoration: none;
+      color: #198754;
+    }
+    .register-footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="register-container">
+    <h2>Đăng ký tài khoản</h2>
+
+    <form id="registerForm">
+      <!-- Họ tên -->
+      <div class="mb-3">
+        <label for="fullname" class="form-label">Họ và tên</label>
+        <input type="text" class="form-control" id="fullname" placeholder="Nhập họ và tên" required>
+      </div>
+
+      <!-- Email -->
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" placeholder="Nhập địa chỉ email" required>
+      </div>
+
+      <!-- Mật khẩu -->
+      <div class="mb-3">
+        <label for="password" class="form-label">Mật khẩu</label>
+        <input type="password" class="form-control" id="password" placeholder="Nhập mật khẩu" required>
+      </div>
+
+      <!-- Xác nhận mật khẩu -->
+      <div class="mb-3">
+        <label for="confirmPassword" class="form-label">Xác nhận mật khẩu</label>
+        <input type="password" class="form-control" id="confirmPassword" placeholder="Nhập lại mật khẩu" required>
+      </div>
+
+      <!-- Nút đăng ký -->
+      <button type="submit" class="btn btn-register mt-2">
+        <i class="fa-solid fa-user-plus me-2"></i>Đăng ký
+      </button>
+    </form>
+
+    <div class="register-footer">
+      <p>Bạn đã có tài khoản? <a href="dangnhap.html">Đăng nhập</a></p>
+    </div>
+  </div>
+
+  <!-- Script kiểm tra -->
+  <script>
+    document.getElementById("registerForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const fullname = document.getElementById("fullname").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+
+      if (password !== confirmPassword) {
+        alert("❌ Mật khẩu xác nhận không khớp. Vui lòng kiểm tra lại!");
+        return;
+      }
+
+      if (!fullname || !email || !password) {
+        alert("⚠️ Vui lòng điền đầy đủ thông tin!");
+        return;
+      }
+
+      // Giả lập đăng ký thành công
+      alert("✅ Đăng ký thành công!\nChào mừng " + fullname + " đến với Nhà Nam!");
+      document.getElementById("registerForm").reset();
+    });
+  </script>
+</body>
+</html>
