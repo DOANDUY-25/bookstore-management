@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký Thẻ Thành Viên</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .membership-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            transition: all 0.3s ease;
+        }
+        .membership-card.bronze {
+            background: linear-gradient(135deg, #cd7f32 0%, #b8860b 100%);
+        }
+        .membership-card.silver {
+            background: linear-gradient(135deg, #c0c0c0 0%, #808080 100%);
+        }
+        .membership-card.gold {
+            background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+        }
+        .privilege-item {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen py-8 px-4">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-2">📚 Đăng Ký Thẻ Thành Viên</h1>
+            <p class="text-white/80 text-lg">Trở thành thành viên để nhận nhiều ưu đãi hấp dẫn</p>
+        </div>
+
+        <form class="bg-white rounded-2xl card-shadow p-8 space-y-8" onsubmit="handleSubmit(event)">
+            <!-- Thông tin tài khoản -->
+            <div class="bg-gray-50 rounded-xl p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
+                    👤 Thông Tin Tài Khoản
+                </h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Họ và tên *</label>
+                        <input type="text" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Nhập họ và tên">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Số điện thoại *</label>
+                        <input type="tel" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="0123 456 789">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                        <input type="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="email@example.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Địa chỉ *</label>
+                        <input type="text" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Nhập địa chỉ">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chọn loại thẻ -->
+            <div class="bg-gray-50 rounded-xl p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
+                    💳 Chọn Loại Thẻ Thành Viên
+                </h2>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <label class="cursor-pointer">
+                        <input type="radio" name="membershipType" value="bronze" class="sr-only" onchange="updateMembership()">
+                        <div class="membership-card bronze text-white p-6 rounded-xl text-center hover:scale-105 transition-transform">
+                            <div class="text-3xl mb-2">🥉</div>
+                            <h3 class="text-xl font-bold mb-2">Hội viên đồng hành</h3>
+                            <p class="text-sm opacity-90">Giảm giá 5-10%</p>
+                            <p class="text-lg font-bold mt-2">200.000đ/tháng</p>
+                        </div>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="membershipType" value="silver" class="sr-only" onchange="updateMembership()">
+                        <div class="membership-card silver text-white p-6 rounded-xl text-center hover:scale-105 transition-transform">
+                            <div class="text-3xl mb-2">🥈</div>
+                            <h3 class="text-xl font-bold mb-2">Hội viên tri thức</h3>
+                            <p class="text-sm opacity-90">Giảm giá 10-15%</p>
+                            <p class="text-lg font-bold mt-2">350.000đ/tháng</p>
+                        </div>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="membershipType" value="gold" class="sr-only" onchange="updateMembership()">
+                        <div class="membership-card gold text-white p-6 rounded-xl text-center hover:scale-105 transition-transform">
+                            <div class="text-3xl mb-2">🥇</div>
+                            <h3 class="text-xl font-bold mb-2">Hội viên tinh hoa</h3>
+                            <p class="text-sm opacity-90">Giảm giá 15-25%</p>
+                            <p class="text-lg font-bold mt-2">500.000đ/tháng</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Thời gian gia hạn và thanh toán -->
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-gray-50 rounded-xl p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                        📅 Thời Gian Gia Hạn
+                    </h3>
+                    <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" onchange="updateTotal()">
+                        <option value="1">1 tháng</option>
+                        <option value="3">3 tháng</option>
+                        <option value="6">6 tháng</option>
+                        <option value="12">12 tháng</option>
+                    </select>
+                </div>
+
+                <div class="bg-gray-50 rounded-xl p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                        💰 Loại Thẻ Thanh Toán
+                    </h3>
+                    <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" onchange="updateDiscount()">
+                        <option value="vietcombank">Vietcombank (Giảm thêm 2%)</option>
+                        <option value="techcombank">Techcombank (Giảm thêm 1.5%)</option>
+                        <option value="bidv">BIDV (Giảm thêm 1%)</option>
+                        <option value="other">Thẻ khác (Không giảm thêm)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Tổng tiền -->
+            <div class="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold">💸 Tổng Thanh Toán</h3>
+                    <div class="text-right">
+                        <p class="text-sm opacity-90">Giảm giá: <span id="discountPercent">0%</span></p>
+                        <p class="text-2xl font-bold" id="totalAmount">0đ</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Đặc quyền -->
+            <div class="bg-gray-50 rounded-xl p-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                    🎁 Đặc Quyền Thành Viên
+                </h3>
+                <div id="privilegesList" class="grid md:grid-cols-2 gap-4">
+                    <!-- Privileges will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="text-center">
+                <button type="submit" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 px-12 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    🚀 Đăng Ký Thẻ Thành Viên
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const membershipData = {
+            bronze: {
+                name: 'Hội viên đồng hành',
+                price: 200000,
+                discount: 5,
+                privileges: [
+                    '📚 Giảm giá 5-10% khi mua sách',
+                    '🎁 Quà tặng sinh nhật',
+                    '📧 Nhận thông tin sách mới qua email',
+                    '🚚 Miễn phí vận chuyển đơn từ 300k'
+                ]
+            },
+            silver: {
+                name: 'Hội viên tri thức',
+                price: 350000,
+                discount: 10,
+                privileges: [
+                    '📚 Giảm giá 10-15% khi mua sách',
+                    '🎁 Quà tặng sinh nhật + bookmark cao cấp',
+                    '📧 Ưu tiên thông báo sách mới',
+                    '🚚 Miễn phí vận chuyển toàn quốc',
+                    '📖 Tặng 1 cuốn sách mỗi quý'
+                ]
+            },
+            gold: {
+                name: 'Hội viên tinh hoa',
+                price: 500000,
+                discount: 15,
+                privileges: [
+                    '📚 Giảm giá 15-25% khi mua sách',
+                    '🎁 Quà tặng sinh nhật + bộ bookmark + túi tote',
+                    '📧 Ưu tiên cao nhất cho sách mới',
+                    '🚚 Miễn phí vận chuyển + giao hàng nhanh',
+                    '📖 Tặng 2 cuốn sách mỗi quý',
+                    '☕ Voucher cafe khi đọc sách tại cửa hàng'
+                ]
+            }
+        };
+
+        const bankDiscounts = {
+            vietcombank: 2,
+            techcombank: 1.5,
+            bidv: 1,
+            other: 0
+        };
+
+        function updateMembership() {
+            const selectedType = document.querySelector('input[name="membershipType"]:checked');
+            if (selectedType) {
+                updatePrivileges(selectedType.value);
+                updateTotal();
+            }
+        }
+
+        function updatePrivileges(type) {
+            const privilegesList = document.getElementById('privilegesList');
+            const privileges = membershipData[type].privileges;
+            
+            privilegesList.innerHTML = privileges.map(privilege => 
+                `<div class="privilege-item p-4 rounded-lg">
+                    <p class="text-sm font-medium text-gray-800">${privilege}</p>
+                </div>`
+            ).join('');
+        }
+
+        function updateTotal() {
+            const selectedType = document.querySelector('input[name="membershipType"]:checked');
+            const months = document.querySelector('select').value;
+            const bank = document.querySelectorAll('select')[1].value;
+            
+            if (selectedType) {
+                const basePrice = membershipData[selectedType.value].price;
+                const membershipDiscount = membershipData[selectedType.value].discount;
+                const bankDiscount = bankDiscounts[bank];
+                const totalDiscount = membershipDiscount + bankDiscount;
+                
+                const subtotal = basePrice * parseInt(months);
+                const discountAmount = subtotal * (totalDiscount / 100);
+                const total = subtotal - discountAmount;
+                
+                document.getElementById('discountPercent').textContent = totalDiscount + '%';
+                document.getElementById('totalAmount').textContent = total.toLocaleString('vi-VN') + 'đ';
+            }
+        }
+
+        function updateDiscount() {
+            updateTotal();
+        }
+
+        function handleSubmit(event) {
+            event.preventDefault();
+            
+            const selectedType = document.querySelector('input[name="membershipType"]:checked');
+            if (!selectedType) {
+                alert('Vui lòng chọn loại thẻ thành viên!');
+                return;
+            }
+            
+            // Simulate form submission
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            submitBtn.innerHTML = '⏳ Đang xử lý...';
+            submitBtn.disabled = true;
+            
+            setTimeout(() => {
+                alert('🎉 Đăng ký thẻ thành viên thành công! Chúng tôi sẽ liên hệ với bạn trong 24h.');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }, 2000);
+        }
+
+        // Initialize with bronze membership selected
+        document.querySelector('input[value="bronze"]').checked = true;
+        updateMembership();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'989dcd1033b625e5',t:'MTc1OTY3NjU1Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookStore - Cửa hàng sách trực tuyến</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .book-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .category-item:hover {
+            background-color: #f3f4f6;
+            transform: translateX(5px);
+            transition: all 0.3s ease;
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between py-4">
+                <!-- Logo -->
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-xl">📚</span>
+                    </div>
+                    <h1 class="text-2xl font-bold text-gray-800">BookStore</h1>
+                </div>
+                
+                <!-- Main Menu -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#" class="text-gray-700 hover:text-blue-600 font-medium transition-colors">Trang chủ</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 font-medium transition-colors">Sách mới</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 font-medium transition-colors">Bestseller</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 font-medium transition-colors">Khuyến mãi</a>
+                    <a href="#" class="text-gray-700 hover:text-blue-600 font-medium transition-colors">Liên hệ</a>
+                </nav>
+                
+                <!-- Auth Buttons -->
+                <div class="flex items-center space-x-4">
+                    <button onclick="showLoginForm()" class="text-blue-600 hover:text-blue-800 font-medium">Đăng nhập</button>
+                    <button onclick="showRegisterForm()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Đăng ký</button>
+                    <button onclick="logout()" class="hidden bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors" id="logoutBtn">Đăng xuất</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Banner -->
+    <section class="gradient-bg text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl md:text-6xl font-bold mb-4">Khám phá thế giới sách</h2>
+            <p class="text-xl mb-8 opacity-90">Hàng ngàn cuốn sách hay đang chờ bạn khám phá</p>
+            <div class="max-w-md mx-auto">
+                <div class="flex">
+                    <input type="text" placeholder="Tìm kiếm sách..." class="flex-1 px-4 py-3 rounded-l-lg text-gray-800 focus:outline-none">
+                    <button class="bg-yellow-500 text-white px-6 py-3 rounded-r-lg hover:bg-yellow-600 transition-colors">Tìm kiếm</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Sidebar - Danh mục cố định bên trái -->
+            <aside class="lg:w-1/4">
+                <div class="bg-white rounded-lg shadow-md p-6 sticky top-24">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Danh mục sách</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="category-item block py-2 px-3 text-gray-700 hover:text-blue-600 rounded transition-all">Văn học</a></li>
+                        <li><a href="#" class="category-item block py-2 px-3 text-gray-700 hover:text-blue-600 rounded transition-all">Kinh tế</a></li>
+                        <li><a href="#" class="category-item block py-2 px-3 text-gray-700 hover:text-blue-600 rounded transition-all">Khoa học</a></li>
+                        <li><a href="#" class="category-item block py-2 px-3 text-gray-700 hover:text-blue-600 rounded transition-all">Lịch sử</a></li>
+                        <li><a href="#" class="category-item block py-2 px-3 text-gray-700 hover:text-blue-600 rounded transition-all">Tâm lý học</a></li>
+                        <li><a href="#" class="category-item block py-2 px-3 text-gray-700 hover:text-blue-600 rounded transition-all">Thiếu nhi</a></li>
+                        <li><a href="#" class="category-item block py-2 px-3 text-gray-700 hover:text-blue-600 rounded transition-all">Công nghệ</a></li>
+                        <li><a href="#" class="category-item block py-2 px-3 text-gray-700 hover:text-blue-600 rounded transition-all">Ngoại ngữ</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- Main Content - Bên phải -->
+            <main class="lg:w-3/4">
+                <!-- Sách bán chạy -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">🔥 Sách bán chạy nhất</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="w-12 h-16 bg-blue-200 rounded flex items-center justify-center">📖</div>
+                            <div>
+                                <p class="font-medium text-sm">Đắc Nhân Tâm</p>
+                                <p class="text-blue-600 font-bold text-sm">89,000đ</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="w-12 h-16 bg-green-200 rounded flex items-center justify-center">📚</div>
+                            <div>
+                                <p class="font-medium text-sm">Sapiens</p>
+                                <p class="text-blue-600 font-bold text-sm">159,000đ</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="w-12 h-16 bg-purple-200 rounded flex items-center justify-center">📘</div>
+                            <div>
+                                <p class="font-medium text-sm">Atomic Habits</p>
+                                <p class="text-blue-600 font-bold text-sm">129,000đ</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="w-12 h-16 bg-red-200 rounded flex items-center justify-center">📙</div>
+                            <div>
+                                <p class="font-medium text-sm">Nhà Giả Kim</p>
+                                <p class="text-blue-600 font-bold text-sm">79,000đ</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Danh sách sách -->
+                <div id="bookList" class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Sách nổi bật</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Book Card 1 -->
+                        <div class="book-card bg-white rounded-lg shadow-md overflow-hidden">
+                            <div class="h-48 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                                <span class="text-white text-6xl">📖</span>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-bold text-lg mb-2">Đắc Nhân Tâm</h3>
+                                <p class="text-gray-600 text-sm mb-2">Dale Carnegie</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-blue-600 font-bold text-xl">89,000đ</span>
+                                    <button class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition-colors">Mua ngay</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Book Card 2 -->
+                        <div class="book-card bg-white rounded-lg shadow-md overflow-hidden">
+                            <div class="h-48 bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center">
+                                <span class="text-white text-6xl">📚</span>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-bold text-lg mb-2">Sapiens</h3>
+                                <p class="text-gray-600 text-sm mb-2">Yuval Noah Harari</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-blue-600 font-bold text-xl">159,000đ</span>
+                                    <button class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition-colors">Mua ngay</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Book Card 3 -->
+                        <div class="book-card bg-white rounded-lg shadow-md overflow-hidden">
+                            <div class="h-48 bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center">
+                                <span class="text-white text-6xl">📘</span>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-bold text-lg mb-2">Atomic Habits</h3>
+                                <p class="text-gray-600 text-sm mb-2">James Clear</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-blue-600 font-bold text-xl">129,000đ</span>
+                                    <button class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition-colors">Mua ngay</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Book Card 4 -->
+                        <div class="book-card bg-white rounded-lg shadow-md overflow-hidden">
+                            <div class="h-48 bg-gradient-to-br from-red-400 to-orange-500 flex items-center justify-center">
+                                <span class="text-white text-6xl">📙</span>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-bold text-lg mb-2">Tôi Tài Giỏi, Bạn Cũng Thế</h3>
+                                <p class="text-gray-600 text-sm mb-2">Adam Khoo</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-blue-600 font-bold text-xl">99,000đ</span>
+                                    <button class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition-colors">Mua ngay</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Book Card 5 -->
+                        <div class="book-card bg-white rounded-lg shadow-md overflow-hidden">
+                            <div class="h-48 bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center">
+                                <span class="text-white text-6xl">📗</span>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-bold text-lg mb-2">Nhà Giả Kim</h3>
+                                <p class="text-gray-600 text-sm mb-2">Paulo Coelho</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-blue-600 font-bold text-xl">79,000đ</span>
+                                    <button class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition-colors">Mua ngay</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Book Card 6 -->
+                        <div class="book-card bg-white rounded-lg shadow-md overflow-hidden">
+                            <div class="h-48 bg-gradient-to-br from-teal-400 to-blue-500 flex items-center justify-center">
+                                <span class="text-white text-6xl">📔</span>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-bold text-lg mb-2">Think and Grow Rich</h3>
+                                <p class="text-gray-600 text-sm mb-2">Napoleon Hill</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-blue-600 font-bold text-xl">119,000đ</span>
+                                    <button class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition-colors">Mua ngay</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form đăng nhập -->
+                <div id="loginForm" class="auth-form bg-white rounded-lg shadow-md p-8 max-w-md mx-auto">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Đăng nhập</h2>
+                    <form onsubmit="handleLogin(event)">
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                            <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" required>
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Mật khẩu</label>
+                            <input type="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" required>
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">Đăng nhập</button>
+                        <p class="text-center mt-4 text-gray-600">
+                            Chưa có tài khoản? 
+                            <button type="button" onclick="showRegisterForm()" class="text-blue-600 hover:underline">Đăng ký ngay</button>
+                        </p>
+                    </form>
+                </div>
+
+                <!-- Form đăng ký -->
+                <div id="registerForm" class="auth-form bg-white rounded-lg shadow-md p-8 max-w-md mx-auto">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Đăng ký</h2>
+                    <form onsubmit="handleRegister(event)">
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Họ và tên</label>
+                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                            <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Số điện thoại</label>
+                            <input type="tel" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" required>
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Mật khẩu</label>
+                            <input type="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" required>
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">Đăng ký</button>
+                        <p class="text-center mt-4 text-gray-600">
+                            Đã có tài khoản? 
+                            <button type="button" onclick="showLoginForm()" class="text-blue-600 hover:underline">Đăng nhập</button>
+                        </p>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
+                            <span class="text-white font-bold">📚</span>
+                        </div>
+                        <h3 class="text-xl font-bold">BookStore</h3>
+                    </div>
+                    <p class="text-gray-400">Cửa hàng sách trực tuyến hàng đầu Việt Nam với hàng ngàn đầu sách chất lượng.</p>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Liên hệ</h4>
+                    <div class="space-y-2 text-gray-400">
+                        <p>📍 123 Đường ABC, Quận 1, TP.HCM</p>
+                        <p>📞 (028) 1234 5678</p>
+                        <p>✉️ info@bookstore.vn</p>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Thông tin</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">Về chúng tôi</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Chính sách bảo mật</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Điều khoản sử dụng</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Hướng dẫn mua hàng</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Theo dõi chúng tôi</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">f</a>
+                        <a href="#" class="w-10 h-10 bg-blue-400 rounded-full flex items-center justify-center hover:bg-blue-500 transition-colors">t</a>
+                        <a href="#" class="w-10 h-10 bg-pink-600 rounded-full flex items-center justify-center hover:bg-pink-700 transition-colors">i</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 BookStore. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let isLoggedIn = false;
+
+        function showLoginForm() {
+            document.getElementById('bookList').style.display = 'none';
+            document.getElementById('loginForm').classList.add('active');
+            document.getElementById('registerForm').classList.remove('active');
+        }
+
+        function showRegisterForm() {
+            document.getElementById('bookList').style.display = 'none';
+            document.getElementById('loginForm').classList.remove('active');
+            document.getElementById('registerForm').classList.add('active');
+        }
+
+        function showBookList() {
+            document.getElementById('bookList').style.display = 'block';
+            document.getElementById('loginForm').classList.remove('active');
+            document.getElementById('registerForm').classList.remove('active');
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            isLoggedIn = true;
+            alert('Đăng nhập thành công!');
+            updateAuthButtons();
+            showBookList();
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            alert('Đăng ký thành công! Vui lòng đăng nhập.');
+            showLoginForm();
+        }
+
+        function logout() {
+            isLoggedIn = false;
+            alert('Đã đăng xuất!');
+            updateAuthButtons();
+            showBookList();
+        }
+
+        function updateAuthButtons() {
+            const loginBtn = document.querySelector('button[onclick="showLoginForm()"]');
+            const registerBtn = document.querySelector('button[onclick="showRegisterForm()"]');
+            const logoutBtn = document.getElementById('logoutBtn');
+
+            if (isLoggedIn) {
+                loginBtn.style.display = 'none';
+                registerBtn.style.display = 'none';
+                logoutBtn.classList.remove('hidden');
+            } else {
+                loginBtn.style.display = 'inline-block';
+                registerBtn.style.display = 'inline-block';
+                logoutBtn.classList.add('hidden');
+            }
+        }
+
+        // Khởi tạo trang
+        document.addEventListener('DOMContentLoaded', function() {
+            showBookList();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'989df73f75630452',t:'MTc1OTY3ODI4NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

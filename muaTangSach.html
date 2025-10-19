@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mua Tặng Sách</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        .gift-option:checked + label {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen font-sans">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6">
+                <h1 class="text-3xl font-bold text-center">🎁 Mua Tặng Sách</h1>
+                <p class="text-center mt-2 text-blue-100">Gửi tặng tri thức đến người thân yêu</p>
+            </div>
+
+            <div class="p-6 space-y-8">
+                <!-- Giỏ hàng -->
+                <div class="bg-gray-50 rounded-xl p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                        🛒 Giỏ hàng của bạn
+                    </h2>
+                    
+                    <div id="cartItems" class="space-y-4">
+                        <!-- Sách 1 -->
+                        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200 flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-16 h-20 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center text-white font-bold text-xs">
+                                    📚
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">Đắc Nhân Tâm</h3>
+                                    <p class="text-gray-600 text-sm">Dale Carnegie</p>
+                                    <p class="text-blue-600 font-bold">89.000đ</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <button onclick="updateQuantity(1, -1)" class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors">-</button>
+                                <span id="qty1" class="font-semibold w-8 text-center">1</span>
+                                <button onclick="updateQuantity(1, 1)" class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">+</button>
+                                <button onclick="removeItem(1)" class="ml-4 text-red-500 hover:text-red-700 transition-colors">🗑️</button>
+                            </div>
+                        </div>
+
+                        <!-- Sách 2 -->
+                        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200 flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-16 h-20 bg-gradient-to-br from-green-400 to-blue-500 rounded-lg flex items-center justify-center text-white font-bold text-xs">
+                                    📖
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">Nhà Giả Kim</h3>
+                                    <p class="text-gray-600 text-sm">Paulo Coelho</p>
+                                    <p class="text-blue-600 font-bold">79.000đ</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <button onclick="updateQuantity(2, -1)" class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors">-</button>
+                                <span id="qty2" class="font-semibold w-8 text-center">2</span>
+                                <button onclick="updateQuantity(2, 1)" class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">+</button>
+                                <button onclick="removeItem(2)" class="ml-4 text-red-500 hover:text-red-700 transition-colors">🗑️</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tổng tiền -->
+                    <div class="mt-6 pt-4 border-t border-gray-300">
+                        <div class="flex justify-between items-center text-lg font-bold text-gray-800">
+                            <span>Tổng tiền sách:</span>
+                            <span id="bookTotal" class="text-blue-600">247.000đ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thông tin người nhận -->
+                <div class="bg-pink-50 rounded-xl p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                        👤 Thông tin người nhận
+                    </h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Họ và tên *</label>
+                            <input type="text" id="recipientName" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Nguyễn Văn A">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Số điện thoại *</label>
+                            <input type="tel" id="recipientPhone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="0901234567">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-gray-700 font-semibold mb-2">Địa chỉ nhận hàng *</label>
+                            <textarea id="recipientAddress" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố"></textarea>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-gray-700 font-semibold mb-2">Lời nhắn tặng kèm</label>
+                            <textarea id="giftMessage" rows="2" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Chúc bạn luôn hạnh phúc và thành công..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quà tặng kèm -->
+                <div class="bg-yellow-50 rounded-xl p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                        🎀 Quà tặng kèm
+                    </h2>
+                    
+                    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                            <input type="checkbox" id="gift1" class="gift-option hidden" onchange="updateGiftTotal()">
+                            <label for="gift1" class="block p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 transition-colors text-center">
+                                <div class="text-3xl mb-2">🖊️</div>
+                                <div class="font-semibold">Bút cao cấp</div>
+                                <div class="text-blue-600 font-bold">+25.000đ</div>
+                            </label>
+                        </div>
+                        
+                        <div>
+                            <input type="checkbox" id="gift2" class="gift-option hidden" onchange="updateGiftTotal()">
+                            <label for="gift2" class="block p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 transition-colors text-center">
+                                <div class="text-3xl mb-2">💌</div>
+                                <div class="font-semibold">Thiệp chúc mừng</div>
+                                <div class="text-blue-600 font-bold">+15.000đ</div>
+                            </label>
+                        </div>
+                        
+                        <div>
+                            <input type="checkbox" id="gift3" class="gift-option hidden" onchange="updateGiftTotal()">
+                            <label for="gift3" class="block p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 transition-colors text-center">
+                                <div class="text-3xl mb-2">🌸</div>
+                                <div class="font-semibold">Hoa tươi</div>
+                                <div class="text-blue-600 font-bold">+50.000đ</div>
+                            </label>
+                        </div>
+                        
+                        <div>
+                            <input type="checkbox" id="gift4" class="gift-option hidden" onchange="updateGiftTotal()">
+                            <label for="gift4" class="block p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 transition-colors text-center">
+                                <div class="text-3xl mb-2">🎁</div>
+                                <div class="font-semibold">Hộp quà đặc biệt</div>
+                                <div class="text-blue-600 font-bold">+30.000đ</div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tổng kết đơn hàng -->
+                <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">💰 Tổng kết đơn hàng</h2>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-700">Tiền sách:</span>
+                            <span id="finalBookTotal" class="font-semibold">247.000đ</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-700">Quà tặng kèm:</span>
+                            <span id="giftTotal" class="font-semibold">0đ</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-700">Phí vận chuyển:</span>
+                            <span class="font-semibold">30.000đ</span>
+                        </div>
+                        <hr class="border-gray-300">
+                        <div class="flex justify-between text-xl font-bold text-green-600">
+                            <span>Tổng cộng:</span>
+                            <span id="grandTotal">277.000đ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nút đặt hàng -->
+                <div class="text-center">
+                    <button onclick="placeOrder()" class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-12 py-4 rounded-xl text-xl font-bold hover:from-green-600 hover:to-blue-600 transform hover:scale-105 transition-all duration-200 shadow-lg">
+                        🎉 Đặt hàng tặng ngay
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let cartData = {
+            1: { name: "Đắc Nhân Tâm", price: 89000, quantity: 1 },
+            2: { name: "Nhà Giả Kim", price: 79000, quantity: 2 }
+        };
+
+        const giftPrices = {
+            gift1: 25000,
+            gift2: 15000,
+            gift3: 50000,
+            gift4: 30000
+        };
+
+        function updateQuantity(id, change) {
+            if (cartData[id]) {
+                cartData[id].quantity = Math.max(1, cartData[id].quantity + change);
+                document.getElementById(`qty${id}`).textContent = cartData[id].quantity;
+                updateTotals();
+            }
+        }
+
+        function removeItem(id) {
+            if (cartData[id]) {
+                delete cartData[id];
+                document.querySelector(`#qty${id}`).closest('.bg-white').remove();
+                updateTotals();
+            }
+        }
+
+        function updateTotals() {
+            let bookTotal = 0;
+            for (let id in cartData) {
+                bookTotal += cartData[id].price * cartData[id].quantity;
+            }
+            
+            document.getElementById('bookTotal').textContent = formatPrice(bookTotal);
+            document.getElementById('finalBookTotal').textContent = formatPrice(bookTotal);
+            
+            updateGrandTotal();
+        }
+
+        function updateGiftTotal() {
+            let giftTotal = 0;
+            for (let giftId in giftPrices) {
+                if (document.getElementById(giftId).checked) {
+                    giftTotal += giftPrices[giftId];
+                }
+            }
+            
+            document.getElementById('giftTotal').textContent = formatPrice(giftTotal);
+            updateGrandTotal();
+        }
+
+        function updateGrandTotal() {
+            let bookTotal = 0;
+            for (let id in cartData) {
+                bookTotal += cartData[id].price * cartData[id].quantity;
+            }
+            
+            let giftTotal = 0;
+            for (let giftId in giftPrices) {
+                if (document.getElementById(giftId).checked) {
+                    giftTotal += giftPrices[giftId];
+                }
+            }
+            
+            const shippingFee = 30000;
+            const grandTotal = bookTotal + giftTotal + shippingFee;
+            
+            document.getElementById('grandTotal').textContent = formatPrice(grandTotal);
+        }
+
+        function formatPrice(price) {
+            return price.toLocaleString('vi-VN') + 'đ';
+        }
+
+        function placeOrder() {
+            const name = document.getElementById('recipientName').value;
+            const phone = document.getElementById('recipientPhone').value;
+            const address = document.getElementById('recipientAddress').value;
+            
+            if (!name || !phone || !address) {
+                alert('Vui lòng điền đầy đủ thông tin người nhận!');
+                return;
+            }
+            
+            const selectedGifts = [];
+            for (let giftId in giftPrices) {
+                if (document.getElementById(giftId).checked) {
+                    selectedGifts.push(document.querySelector(`label[for="${giftId}"] .font-semibold`).textContent);
+                }
+            }
+            
+            let orderSummary = `🎉 Đặt hàng thành công!\n\n`;
+            orderSummary += `📚 Sách đã chọn:\n`;
+            for (let id in cartData) {
+                orderSummary += `- ${cartData[id].name} x${cartData[id].quantity}\n`;
+            }
+            
+            if (selectedGifts.length > 0) {
+                orderSummary += `\n🎁 Quà tặng kèm:\n`;
+                selectedGifts.forEach(gift => orderSummary += `- ${gift}\n`);
+            }
+            
+            orderSummary += `\n👤 Người nhận: ${name}`;
+            orderSummary += `\n📞 SĐT: ${phone}`;
+            orderSummary += `\n📍 Địa chỉ: ${address}`;
+            
+            const message = document.getElementById('giftMessage').value;
+            if (message) {
+                orderSummary += `\n💌 Lời nhắn: ${message}`;
+            }
+            
+            orderSummary += `\n\n💰 Tổng tiền: ${document.getElementById('grandTotal').textContent}`;
+            orderSummary += `\n\n📦 Đơn hàng sẽ được giao trong 2-3 ngày làm việc!`;
+            
+            alert(orderSummary);
+        }
+
+        // Khởi tạo tổng tiền ban đầu
+        updateTotals();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'989de2df654d509a',t:'MTc1OTY3NzQ1MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
