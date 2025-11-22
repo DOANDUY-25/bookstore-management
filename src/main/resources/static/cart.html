@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ Hàng - Bookshop Green</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/index.html" class="navbar-brand">Bookshop Green</a>
+            <ul class="nav-menu">
+                <li><a href="/index.html" class="nav-link">Trang Chủ</a></li>
+                <li class="dropdown">
+                    <a href="/books.html" class="nav-link dropdown-toggle">Sách</a>
+                    <div class="dropdown-menu" id="categoryMenu">
+                        <a href="/books.html" class="dropdown-item">Tất Cả Sách</a>
+                    </div>
+                </li>
+                <li><a href="/cart.html" class="nav-link"> Giỏ Hàng</a></li>
+                <li id="authSection" class="auth-section"></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="content">
+        <div class="container">
+            <h1 class="section-title"> Giỏ Hàng Của Bạn</h1>
+
+            <div id="cartContent">
+                <!-- Cart items will be loaded here -->
+                <div class="alert alert-info">Đang tải giỏ hàng...</div>
+            </div>
+
+            <div id="cartSummary" style="display: none;">
+                <div
+                    style="background: white; padding: 2rem; border-radius: 12px; margin-top: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <h3 style="color: #2d6a4f; margin-bottom: 1rem;"> Tổng Đơn Hàng</h3>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1.2rem;">
+                        <span>Tổng số lượng:</span>
+                        <strong id="totalQuantity">0</strong>
+                    </div>
+                    <div
+                        style="display: flex; justify-content: space-between; margin-bottom: 1.5rem; font-size: 1.5rem; color: #2d6a4f;">
+                        <span>Tổng tiền:</span>
+                        <strong id="totalPrice">0 ₫</strong>
+                    </div>
+                    <button onclick="showCheckoutForm()" class="btn btn-primary" style="width: 100%;"> Đặt
+                        Hàng</button>
+                    <a href="/books.html" class="btn btn-outline" style="width: 100%; margin-top: 1rem;"> Tiếp Tục Mua
+                        Sắm</a>
+                </div>
+            </div>
+
+            <!-- Checkout Form Modal -->
+            <div id="checkoutModal"
+                style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
+                <div
+                    style="max-width: 600px; margin: 2rem auto; background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+                    <h2 style="color: #2d6a4f; margin-bottom: 1.5rem;"> Thông Tin Giao Hàng</h2>
+
+                    <form id="checkoutForm">
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #2d6a4f;">
+                                Họ và Tên <span style="color: red;">*</span>
+                            </label>
+                            <input type="text" id="recipientName" required
+                                style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
+                        </div>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #2d6a4f;">
+                                Số Điện Thoại <span style="color: red;">*</span>
+                            </label>
+                            <input type="tel" id="recipientPhone" required pattern="[0-9]{10,11}"
+                                placeholder="Ví dụ: 0912345678"
+                                style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
+                        </div>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #2d6a4f;">
+                                Email
+                            </label>
+                            <input type="email" id="recipientEmail" placeholder="email@example.com"
+                                style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
+                        </div>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #2d6a4f;">
+                                Địa Chỉ Giao Hàng <span style="color: red;">*</span>
+                            </label>
+                            <textarea id="shippingAddress" required rows="3"
+                                placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố"
+                                style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; resize: vertical;"></textarea>
+                        </div>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #2d6a4f;">
+                                Ghi Chú
+                            </label>
+                            <textarea id="orderNotes" rows="2" placeholder="Ghi chú thêm cho đơn hàng (không bắt buộc)"
+                                style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; resize: vertical;"></textarea>
+                        </div>
+
+                        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                            <h4 style="color: #2d6a4f; margin-bottom: 0.5rem;">Tổng Thanh Toán</h4>
+                            <p style="font-size: 1.5rem; font-weight: bold; color: #2d6a4f; margin: 0;"
+                                id="modalTotalPrice">0 ₫</p>
+                        </div>
+
+                        <div style="display: flex; gap: 1rem;">
+                            <button type="submit" class="btn btn-primary" style="flex: 1;">
+                                Xác Nhận Đặt Hàng
+                            </button>
+                            <button type="button" onclick="closeCheckoutForm()" class="btn btn-outline"
+                                style="flex: 1;">
+                                Hủy
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <p>&copy; 2025 Bookshop Green. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/auth.js?v=2"></script>
+    <script src="/js/notification.js"></script>
+    <script>
+        // Load cart
+        function loadCart() {
+            fetch('/cart/api', {
+                credentials: 'include'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Not authenticated');
+                    }
+                    return response.json();
+                })
+                .then(cart => {
+                    displayCart(cart);
+                })
+                .catch(error => {
+                    console.error('Error loading cart:', error);
+                    document.getElementById('cartContent').innerHTML = `
+                        <div class="alert alert-danger">
+                            Không thể tải giỏ hàng. Vui lòng <a href="/login.html">đăng nhập</a> để sử dụng giỏ hàng.
+                        </div>
+                    `;
+                });
+        }
+
+        function displayCart(cart) {
+            const cartContent = document.getElementById('cartContent');
+            const cartSummary = document.getElementById('cartSummary');
+
+            if (!cart || !cart.items || cart.items.length === 0) {
+                cartContent.innerHTML = `
+                    <div class="alert alert-info">
+                        <p>Giỏ hàng của bạn đang trống</p>
+                        <a href="/books.html" class="btn btn-primary">Mua Sắm Ngay</a>
+                    </div>
+                `;
+                cartSummary.style.display = 'none';
+                return;
+            }
+
+            let html = '<div style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">';
+            let totalQuantity = 0;
+
+            cart.items.forEach(item => {
+                totalQuantity += item.quantity;
+                const itemTotal = item.subtotal || (item.price * item.quantity);
+
+                html += `
+                    <div style="display: grid; grid-template-columns: 100px 1fr auto; gap: 1.5rem; padding: 1.5rem; border-bottom: 1px solid #e9ecef; align-items: center;">
+                        <img src="${item.coverImageURL || 'https://via.placeholder.com/100x150'}" 
+                             alt="${item.title}" 
+                             style="width: 100%; border-radius: 8px;">
+                        <div>
+                            <h4 style="color: #2d6a4f; margin-bottom: 0.5rem;">${item.title}</h4>
+                            <p style="color: #2d6a4f; font-size: 1.2rem; font-weight: bold;">${item.price.toLocaleString('vi-VN')} ₫</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                                <label>Số lượng:</label>
+                                <input type="number" value="${item.quantity}" min="1" 
+                                       onchange="updateQuantity(${item.bookId}, this.value)"
+                                       style="width: 80px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                            </div>
+                            <p style="font-weight: bold; margin-bottom: 1rem;">
+                                Tổng: ${itemTotal.toLocaleString('vi-VN')} ₫
+                            </p>
+                            <button onclick="removeItem(${item.bookId})" class="btn btn-outline btn-sm" style="background: #dc3545; color: white;">
+                                Xóa
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            cartContent.innerHTML = html;
+
+            // Update summary
+            document.getElementById('totalQuantity').textContent = totalQuantity + ' cuốn';
+            document.getElementById('totalPrice').textContent = cart.totalAmount.toLocaleString('vi-VN') + ' ₫';
+            cartSummary.style.display = 'block';
+        }
+
+        function updateQuantity(bookId, quantity) {
+            const formData = new URLSearchParams();
+            formData.append('bookId', bookId);
+            formData.append('quantity', quantity);
+
+            fetch('/cart/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData,
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showSuccess('Cập Nhật Thành Công!', 'Số lượng sách đã được cập nhật.');
+                        loadCart(); // Reload cart to show updated data
+                    } else {
+                        showError('Lỗi', data.message || 'Không thể cập nhật giỏ hàng.');
+                        loadCart(); // Reload to revert changes
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError('Lỗi', 'Không thể cập nhật giỏ hàng.');
+                    loadCart();
+                });
+        }
+
+        function removeItem(bookId) {
+            if (confirm('Bạn có chắc muốn xóa sách này khỏi giỏ hàng?')) {
+                const formData = new URLSearchParams();
+                formData.append('bookId', bookId);
+
+                fetch('/cart/remove', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData,
+                    credentials: 'include'
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showSuccess('Xóa Thành Công!', 'Sách đã được xóa khỏi giỏ hàng.');
+                            loadCart(); // Reload cart to show updated data
+                        } else {
+                            showError('Lỗi', data.message || 'Không thể xóa sách khỏi giỏ hàng.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showError('Lỗi', 'Không thể xóa sách khỏi giỏ hàng.');
+                    });
+            }
+        }
+
+        function showCheckoutForm() {
+            // Show modal
+            document.getElementById('checkoutModal').style.display = 'block';
+
+            // Copy total price to modal
+            const totalPrice = document.getElementById('totalPrice').textContent;
+            document.getElementById('modalTotalPrice').textContent = totalPrice;
+
+            // Prevent body scroll
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCheckoutForm() {
+            document.getElementById('checkoutModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+
+            // Reset form
+            document.getElementById('checkoutForm').reset();
+        }
+
+        // Handle form submission
+        document.addEventListener('DOMContentLoaded', function () {
+            const checkoutForm = document.getElementById('checkoutForm');
+            if (checkoutForm) {
+                checkoutForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+
+                    const formData = {
+                        recipientName: document.getElementById('recipientName').value,
+                        recipientPhone: document.getElementById('recipientPhone').value,
+                        recipientEmail: document.getElementById('recipientEmail').value,
+                        shippingAddress: document.getElementById('shippingAddress').value,
+                        orderNotes: document.getElementById('orderNotes').value
+                    };
+
+                    checkout(formData);
+                });
+            }
+        });
+
+        function checkout(shippingInfo) {
+            fetch('/orders/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(shippingInfo),
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        closeCheckoutForm();
+                        showSuccess('Đặt Hàng Thành Công!', 'Đơn hàng #' + data.orderId + ' đã được tạo.');
+                        setTimeout(() => {
+                            window.location.href = '/orders.html';
+                        }, 2000);
+                    } else {
+                        showError('Lỗi', data.message || 'Không thể đặt hàng.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError('Lỗi', 'Không thể đặt hàng. Vui lòng thử lại.');
+                });
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function (e) {
+            const modal = document.getElementById('checkoutModal');
+            if (e.target === modal) {
+                closeCheckoutForm();
+            }
+        });
+
+        // Load cart on page load
+        loadCart();
+    </script>
+</body>
+
+</html>

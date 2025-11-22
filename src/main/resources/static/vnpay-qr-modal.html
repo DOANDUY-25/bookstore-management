@@ -1,0 +1,79 @@
+﻿<!-- VNPay QR Code Modal Template -->
+<div id="vnpayQRModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1001; overflow-y: auto;">
+    <div
+        style="max-width: 500px; margin: 2rem auto; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+        <!-- VNPay Header -->
+        <div
+            style="background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%); padding: 1.5rem; border-radius: 12px 12px 0 0; text-align: center;">
+            <h2 style="color: white; margin: 0; font-size: 1.8rem; font-weight: bold;">VNPAY</h2>
+            <p style="color: white; margin: 0.5rem 0 0 0; font-size: 1rem;">Cổng thanh toán điện tử</p>
+        </div>
+
+        <!-- VNPay Content -->
+        <div style="padding: 2rem;">
+            <h3 style="color: #0066cc; margin-bottom: 1rem; text-align: center;">Quét mã QR để thanh toán</h3>
+
+            <!-- Order Info -->
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="color: #6c757d;">Số đơn thanh toán:</span>
+                    <strong id="vnpayQROrderId"></strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="color: #6c757d;">Giá trị đơn hàng:</span>
+                    <strong style="color: #0066cc; font-size: 1.2rem;" id="vnpayQRAmount"></strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="color: #6c757d;">Phí giao dịch:</span>
+                    <strong>0 ₫</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: #6c757d;">Mã giao dịch:</span>
+                    <strong id="vnpayQRRefCode"></strong>
+                </div>
+            </div>
+
+            <!-- QR Code -->
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <div
+                    style="background: white; padding: 1.5rem; border-radius: 8px; border: 2px solid #0066cc; display: inline-block;">
+                    <div id="vnpayQRCode" style="width: 200px; height: 200px; background: white;"></div>
+                </div>
+                <p style="margin-top: 1rem; color: #6c757d; font-size: 0.9rem;">
+                    Sử dụng ứng dụng ngân hàng để quét mã QR
+                </p>
+            </div>
+
+            <!-- Warning -->
+            <div
+                style="background: #fff3cd; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #ffc107;">
+                <p style="margin: 0; font-size: 0.9rem; color: #856404;">
+                    <strong>Môi trường Test:</strong> Đây là QR code giả lập. Trong thực tế, đây sẽ là QR code thật
+                    từ VNPay.
+                </p>
+            </div>
+
+            <!-- Buttons -->
+            <div style="display: flex; gap: 1rem; flex-direction: column;">
+                <button onclick="confirmVNPayQRPayment()"
+                    style="width: 100%; padding: 1rem; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer;">
+                    Tôi Đã Thanh Toán
+                </button>
+                <button onclick="closeVNPayQRModal()"
+                    style="width: 100%; padding: 1rem; background: #6c757d; color: white; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer;">
+                    Hủy Thanh Toán
+                </button>
+            </div>
+
+            <div style="text-align: center; margin-top: 1rem;">
+                <p style="font-size: 0.85rem; color: #6c757d;">
+                    1900.5555.77 | hotro@vnpay.vn
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- QR Code Library -->
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>

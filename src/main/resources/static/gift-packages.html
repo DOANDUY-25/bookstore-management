@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mua Tặng Quà - Bookshop Green</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .gift-item {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .gift-item.selected {
+            border-color: #2c5f2d;
+            background-color: #f0f8f0;
+        }
+
+        .gift-item:hover {
+            border-color: #2c5f2d;
+        }
+
+        #giftCart {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .cart-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/index.html" class="navbar-brand">Bookshop Green</a>
+
+            <ul class="nav-menu">
+                <li><a href="/index.html" class="nav-link">Trang Chủ</a></li>
+                <li class="dropdown">
+                    <a href="/books.html" class="nav-link dropdown-toggle">Sách</a>
+                    <div class="dropdown-menu" id="categoryMenu">
+                        <a href="/books.html" class="dropdown-item">Tất Cả Sách</a>
+                    </div>
+                </li>
+                <li><a href="/gift-packages.html" class="nav-link active">Mua Tặng Quà</a></li>
+                <li><a href="/cart.html" class="nav-link">Giỏ Hàng</a></li>
+            </ul>
+
+            <form id="searchForm" class="header-search">
+                <input type="text" id="searchQuery" placeholder="Tìm kiếm sách..." />
+                <button type="submit">Tìm kiếm</button>
+            </form>
+
+            <div id="authSection" class="auth-section">
+                <!-- Auth content will be loaded here by JavaScript -->
+            </div>
+        </div>
+    </nav>
+
+    <main class="content">
+        <div class="container">
+            <h1 class="section-title">Mua Tặng Quà</h1>
+            <p style="text-align: center; margin-bottom: 30px;">Chọn sách và gói quà tặng đặc biệt để gửi tặng người
+                thân yêu</p>
+
+            <!-- Gift Packages Section -->
+            <div style="margin-bottom: 40px;">
+                <h2 style="color: #2c5f2d; margin-bottom: 20px;">Bước 1: Chọn Gói Quà Tặng (Tùy chọn)</h2>
+                <div class="books-grid" id="packagesGrid">
+                    <div style="grid-column: 1/-1; text-align: center; padding: 20px;">
+                        <p>Đang tải gói quà...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Books Section -->
+            <div>
+                <h2 style="color: #2c5f2d; margin-bottom: 20px;">Bước 2: Chọn Sách Để Tặng</h2>
+                <div class="books-grid" id="booksGrid">
+                    <div style="grid-column: 1/-1; text-align: center; padding: 20px;">
+                        <p>Đang tải sách...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Selected Items Cart -->
+            <div id="giftCart"
+                style="display: none; position: fixed; bottom: 20px; right: 20px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; z-index: 1000;">
+                <h3 style="margin-top: 0;">Giỏ Quà Tặng</h3>
+                <div id="selectedPackage"></div>
+                <div id="selectedBooks"></div>
+                <div id="totalAmount"
+                    style="font-weight: bold; margin-top: 10px; padding-top: 10px; border-top: 2px solid #2c5f2d;">
+                </div>
+                <button onclick="proceedToCheckout()" class="btn btn-primary"
+                    style="width: 100%; margin-top: 10px;">Tiếp Tục Đặt Hàng</button>
+                <button onclick="clearGiftCart()" class="btn btn-outline" style="width: 100%; margin-top: 5px;">Xóa Tất
+                    Cả</button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <p>&copy; 2025 Bookshop Green. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/auth.js?v=2"></script>
+    <script src="/js/notification.js"></script>
+    <script src="/js/search.js"></script>
+
+    <script>
+        let selectedPackage = null;
+        let selectedBooks = [];
+
+        function performSearch() {
+            const query = document.getElementById('searchQuery').value;
+            if (query.trim()) {
+                window.location.href = `/books.html?search=${encodeURIComponent(query)}`;
+            }
+        }
+
+        document.getElementById('searchQuery').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // Load gift packages
+        fetch('/api/gift-packages', {
+            credentials: 'include'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load packages');
+                }
+                return response.json();
+            })
+            .then(packages => {
+                const grid = document.getElementById('packagesGrid');
+                if (!packages || packages.length === 0) {
+                    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px;"><p>Hiện chưa có gói quà tặng nào.</p></div>';
+                    return;
+                }
+
+                grid.innerHTML = packages.map(pkg => {
+                    const escapedName = (pkg.packageName || '').replace(/'/g, "\\'");
+                    return `
+                    <div class="book-card gift-item" id="package-${pkg.giftPackageId}" onclick="selectPackage(${pkg.giftPackageId}, '${escapedName}', ${pkg.packageFee})">
+                        <img loading="lazy" src="${pkg.imageURL || 'https://via.placeholder.com/300x400?text=Gift+Package'}" alt="${pkg.packageName || ''}">
+                        <div class="book-card-body">
+                            <h3 class="book-title">${pkg.packageName || ''}</h3>
+                            <p class="book-author">${pkg.description || ''}</p>
+                            <div style="margin: 10px 0; font-size: 14px;">
+                                ${pkg.giftBox ? `<p>Hộp quà: ${pkg.giftBox}</p>` : ''}
+                                ${pkg.greetingCard ? `<p>Thiệp: ${pkg.greetingCard}</p>` : ''}
+                                ${pkg.paperType ? `<p>Giấy gói: ${pkg.paperType}</p>` : ''}
+                            </div>
+                            <p class="book-price">${(pkg.packageFee || 0).toLocaleString('vi-VN')} ₫</p>
+                        </div>
+                    </div>
+                `}).join('');
+            })
+            .catch(error => {
+                console.error('Error loading gift packages:', error);
+                document.getElementById('packagesGrid').innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px;"><p class="alert alert-danger">Không thể tải danh sách gói quà tặng</p></div>';
+            });
+
+        // Load books
+        fetch('/api/books', {
+            credentials: 'include'
+        })
+            .then(response => response.json())
+            .then(books => {
+                const grid = document.getElementById('booksGrid');
+                if (!books || books.length === 0) {
+                    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px;"><p>Không tìm thấy sách nào.</p></div>';
+                    return;
+                }
+
+                grid.innerHTML = books.map(book => `
+                    <div class="book-card">
+                        <img loading="lazy" src="${book.coverImageURL || 'https://via.placeholder.com/300x400?text=No+Image'}" alt="${book.title}">
+                        <div class="book-card-body">
+                            <h3 class="book-title">${book.title}</h3>
+                            <p class="book-author">${book.author}</p>
+                            <p class="book-price">${(book.price || 0).toLocaleString('vi-VN')} ₫</p>
+                            <p class="book-stock ${book.stock > 0 ? '' : 'out-of-stock'}">
+                                ${book.stock > 0 ? `Còn ${book.stock} cuốn` : 'Hết hàng'}
+                            </p>
+                            <div style="display: flex; gap: 0.5rem; flex-direction: column;">
+                                ${book.stock > 0 ? `<button onclick="addBookToGift(${book.bookId}, '${book.title.replace(/'/g, "\\'")}', ${book.price})" class="btn btn-primary btn-sm">Thêm Vào Quà</button>` : '<button class="btn btn-outline btn-sm" disabled>Hết hàng</button>'}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            })
+            .catch(error => {
+                console.error('Error loading books:', error);
+                document.getElementById('booksGrid').innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px;"><p class="alert alert-danger">Không thể tải danh sách sách</p></div>';
+            });
+
+        function selectPackage(id, name, fee) {
+            // Remove previous selection
+            document.querySelectorAll('.gift-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+
+            // Add selection to clicked item
+            document.getElementById(`package-${id}`).classList.add('selected');
+
+            selectedPackage = { id, name, fee };
+            updateGiftCart();
+        }
+
+        function addBookToGift(bookId, title, price) {
+            const existingBook = selectedBooks.find(b => b.id === bookId);
+            if (existingBook) {
+                existingBook.quantity++;
+            } else {
+                selectedBooks.push({ id: bookId, title, price, quantity: 1 });
+            }
+            updateGiftCart();
+        }
+
+        function removeBookFromGift(bookId) {
+            selectedBooks = selectedBooks.filter(b => b.id !== bookId);
+            updateGiftCart();
+        }
+
+        function updateGiftCart() {
+            const cart = document.getElementById('giftCart');
+            const packageDiv = document.getElementById('selectedPackage');
+            const booksDiv = document.getElementById('selectedBooks');
+            const totalDiv = document.getElementById('totalAmount');
+
+            if (!selectedPackage && selectedBooks.length === 0) {
+                cart.style.display = 'none';
+                return;
+            }
+
+            cart.style.display = 'block';
+
+            // Update package
+            if (selectedPackage) {
+                packageDiv.innerHTML = `
+                    <div class="cart-item">
+                        <div>
+                            <strong>${selectedPackage.name}</strong><br>
+                            <span>${selectedPackage.fee.toLocaleString('vi-VN')} ₫</span>
+                        </div>
+                        <button onclick="selectedPackage = null; document.querySelectorAll('.gift-item').forEach(i => i.classList.remove('selected')); updateGiftCart();" style="background: none; border: none; color: red; cursor: pointer; font-size: 20px;">×</button>
+                    </div>
+                `;
+            } else {
+                packageDiv.innerHTML = '<p style="color: #666; font-size: 14px;">Chưa chọn gói quà</p>';
+            }
+
+            // Update books
+            if (selectedBooks.length > 0) {
+                booksDiv.innerHTML = '<h4 style="margin: 10px 0;">Sách đã chọn:</h4>' + selectedBooks.map(book => `
+                    <div class="cart-item">
+                        <div>
+                            <strong>${book.title}</strong><br>
+                            <span>${book.price.toLocaleString('vi-VN')} ₫ x ${book.quantity}</span>
+                        </div>
+                        <button onclick="removeBookFromGift(${book.id})" style="background: none; border: none; color: red; cursor: pointer; font-size: 20px;">×</button>
+                    </div>
+                `).join('');
+            } else {
+                booksDiv.innerHTML = '<p style="color: #666; font-size: 14px;">Chưa chọn sách nào</p>';
+            }
+
+            // Calculate total
+            let total = selectedPackage ? selectedPackage.fee : 0;
+            selectedBooks.forEach(book => {
+                total += book.price * book.quantity;
+            });
+
+            totalDiv.innerHTML = `Tổng cộng: <span style="color: #2c5f2d; font-size: 18px;">${total.toLocaleString('vi-VN')} ₫</span>`;
+        }
+
+        function clearGiftCart() {
+            selectedPackage = null;
+            selectedBooks = [];
+            document.querySelectorAll('.gift-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            updateGiftCart();
+        }
+
+        function proceedToCheckout() {
+            if (selectedBooks.length === 0) {
+                alert('Vui lòng chọn ít nhất một cuốn sách để tặng!');
+                return;
+            }
+
+            // Store data in sessionStorage
+            sessionStorage.setItem('giftOrder', JSON.stringify({
+                package: selectedPackage,
+                books: selectedBooks
+            }));
+
+            // Redirect to gift order page
+            window.location.href = '/gift-order.html';
+        }
+    </script>
+</body>
+
+</html>

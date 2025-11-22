@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập - Bookshop Green</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/index.html" class="navbar-brand">Bookshop Green</a>
+            <ul class="nav-menu">
+                <li><a href="/index.html" class="nav-link">Trang Chủ</a></li>
+                <li class="dropdown">
+                    <a href="/books.html" class="nav-link dropdown-toggle">Sách</a>
+                    <div class="dropdown-menu" id="categoryMenu">
+                        <a href="/books.html" class="dropdown-item">Tất Cả Sách</a>
+                        <!-- Categories will be loaded here -->
+                    </div>
+                </li>
+                <li><a href="/cart.html" class="nav-link">Giỏ Hàng</a></li>
+                <li id="authSection" class="auth-section">
+                    <!-- Auth content will be loaded here by JavaScript -->
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="content">
+        <div class="container">
+            <div class="login-card">
+                <div class="card-header">
+                    <h2>Đăng Nhập</h2>
+                </div>
+                <div class="card-body">
+                    <div id="errorMessage" class="alert alert-danger" style="display:none;"></div>
+                    <div id="logoutMessage" class="alert alert-success" style="display:none;">Đăng xuất thành công!
+                    </div>
+
+                    <form action="/login" method="post">
+                        <div class="form-group">
+                            <label for="username" class="form-label">Tên đăng nhập</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password" class="form-label">Mật khẩu</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+
+                        <div class="form-check">
+                            <input type="checkbox" id="remember-me" name="remember-me">
+                            <label for="remember-me">Ghi nhớ đăng nhập</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Đăng Nhập</button>
+                    </form>
+
+                    <div class="divider"></div>
+
+                    <div class="text-center">
+                        <p>Chưa có tài khoản? <a href="/register.html" class="link">Đăng ký ngay</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <p>&copy; 2025 Bookshop Green. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/auth.js?v=2"></script>
+    <script src="/js/notification.js"></script>
+    <script>
+        // Check for error parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('error')) {
+            document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('errorMessage').textContent = 'Tên đăng nhập hoặc mật khẩu không đúng!';
+        }
+        if (urlParams.get('logout')) {
+            document.getElementById('logoutMessage').style.display = 'block';
+            setTimeout(() => {
+                showInfo('Đã Đăng Xuất', 'Bạn đã đăng xuất thành công. Hẹn gặp lại!');
+            }, 300);
+        }
+        if (urlParams.get('success')) {
+            setTimeout(() => {
+                showSuccess('Đăng Ký Thành Công!', 'Tài khoản của bạn đã được tạo. Vui lòng đăng nhập để tiếp tục.');
+            }, 300);
+        }
+    </script>
+</body>
+
+</html>

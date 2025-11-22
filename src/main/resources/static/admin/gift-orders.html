@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Đơn Quà Tặng - Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="admin-style.css">
+    <style>
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold
+        }
+
+        .badge-pending {
+            background: #ffc107;
+            color: #000
+        }
+
+        .badge-confirmed {
+            background: #17a2b8;
+            color: #fff
+        }
+
+        .badge-shipped {
+            background: #007bff;
+            color: #fff
+        }
+
+        .badge-delivered {
+            background: #28a745;
+            color: #fff
+        }
+
+        .badge-cancelled {
+            background: #dc3545;
+            color: #fff
+        }
+
+        .badge-paid {
+            background: #28a745;
+            color: #fff
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <h2>Admin Panel</h2>
+            <ul class="admin-menu">
+                <li><a href="/admin/dashboard.html">Dashboard</a></li>
+                <li><a href="/admin/books.html">Quản Lý Sách</a></li>
+                <li><a href="/admin/orders.html">Quản Lý Đơn Hàng</a></li>
+                <li><a href="/admin/gift-orders.html" class="active">Quản Lý Đơn Quà Tặng</a></li>
+                <li><a href="/admin/gift-packages.html">Quản Lý Gói Quà</a></li>
+                <li><a href="/admin/users.html">Quản Lý Người Dùng</a></li>
+                <li><a href="/admin/memberships.html">Quản Lý Thẻ Thành Viên</a></li>
+                <li><a href="/index.html">Về Trang Chủ</a></li>
+            </ul>
+        </aside>
+        <main class="admin-content">
+            <h1 style="color:#2d6a4f;margin-bottom:1.5rem">Quản Lý Đơn Quà Tặng</h1>
+            <div style="margin-bottom:1rem">
+                <input type="text" id="searchInput" placeholder="🔍 Tìm kiếm theo mã đơn, người gửi, người nhận..."
+                    style="width:100%;max-width:500px;padding:0.75rem;border:1px solid #ddd;border-radius:4px;font-size:14px"
+                    oninput="filterOrders()">
+            </div>
+            <div class="admin-section">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Mã ĐH</th>
+                            <th>Người Gửi</th>
+                            <th>Người Nhận</th>
+                            <th>Tổng Tiền</th>
+                            <th>Trạng Thái</th>
+                            <th>Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="giftOrdersTable">
+                        <tr>
+                            <td colspan="6" style="text-align:center">Đang tải...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <script src="/js/notification.js"></script>
+    <script>
+        let allOrders = [];
+        fetch('/admin/api/gift-orders', { credentials: 'include' })
+            .then(r => r.json())
+            .then(orders => { allOrders = orders; displayOrders(orders); })
+            .catch(() => document.getElementById('giftOrdersTable').innerHTML = '<tr><td colspan="6" style="text-align:center">Không thể tải dữ liệu</td></tr>');
+        function displayOrders(orders) {
+            document.getElementById('giftOrdersTable').innerHTML = orders.length ? orders.map(o => `
+                <tr>
+                    <td>#${o.orderGiftId}</td>
+                    <td>${o.user ? o.user.fullName || o.user.userName : 'N/A'}</td>
+                    <td>${o.recipientName || 'N/A'}</td>
+                    <td>${(o.totalAmount || 0).toLocaleString('vi-VN')} ₫</td>
+                    <td><span class="badge badge-${o.status.toLowerCase()}">${o.status}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="location.href='/gift-order-detail.html?id=${o.orderGiftId}'">Xem</button>
+                        ${o.status !== 'CANCELLED' && o.status !== 'DELIVERED' ? `<button class="btn btn-sm btn-danger" onclick="cancelOrder(${o.orderGiftId})">Hủy</button>` : ''}
+                    </td>
+                </tr>
+            `).join('') : '<tr><td colspan="6" style="text-align:center">Không tìm thấy đơn quà tặng</td></tr>';
+        }
+        function filterOrders() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allOrders.filter(o =>
+                (o.orderGiftId + '').includes(q) ||
+                (o.user && (o.user.fullName || o.user.userName || '').toLowerCase().includes(q)) ||
+                (o.recipientName || '').toLowerCase().includes(q) ||
+                (o.status || '').toLowerCase().includes(q)
+            );
+            displayOrders(filtered);
+        }
+        function cancelOrder(id) {
+            if (!confirm('Bạn có chắc muốn hủy đơn quà tặng #' + id + '?')) return;
+            fetch(`/admin/api/gift-orders/${id}/cancel`, { method: 'POST', credentials: 'include' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        showSuccess('Thành Công', 'Đã hủy đơn quà tặng');
+                        fetch('/admin/api/gift-orders', { credentials: 'include' })
+                            .then(r => r.json())
+                            .then(orders => { allOrders = orders; displayOrders(orders); });
+                    } else {
+                        showError('Lỗi', data.error || 'Không thể hủy đơn quà tặng');
+                    }
+                })
+                .catch(() => showError('Lỗi', 'Không thể hủy đơn quà tặng'));
+        }
+    </script>
+</body>
+
+</html>

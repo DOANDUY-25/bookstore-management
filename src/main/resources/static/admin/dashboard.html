@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="admin-style.css">
+    <style>
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem
+        }
+
+        .stat-card {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center
+        }
+
+        .stat-card h3 {
+            margin: 0 0 0.5rem;
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase
+        }
+
+        .stat-card .num {
+            font-size: 36px;
+            font-weight: bold;
+            color: #2d6a4f;
+            margin: 0
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <h2>Admin Panel</h2>
+            <ul class="admin-menu">
+                <li><a href="/admin/dashboard.html" class="active">Dashboard</a></li>
+                <li><a href="/admin/books.html">Quản Lý Sách</a></li>
+                <li><a href="/admin/orders.html">Quản Lý Đơn Hàng</a></li>
+                <li><a href="/admin/gift-orders.html">Quản Lý Đơn Quà Tặng</a></li>
+                <li><a href="/admin/gift-packages.html">Quản Lý Gói Quà</a></li>
+                <li><a href="/admin/users.html">Quản Lý Người Dùng</a></li>
+                <li><a href="/admin/memberships.html">Quản Lý Thẻ Thành Viên</a></li>
+                <li><a href="/index.html">Về Trang Chủ</a></li>
+            </ul>
+        </aside>
+        <main class="admin-content">
+            <h1 style="color:#2d6a4f;margin-bottom:2rem">Dashboard</h1>
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>Tổng Sách</h3>
+                    <p class="num" id="totalBooks">-</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Đơn Hàng</h3>
+                    <p class="num" id="totalOrders">-</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Người Dùng</h3>
+                    <p class="num" id="totalUsers">-</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Thẻ TV</h3>
+                    <p class="num" id="totalMemberships">-</p>
+                </div>
+            </div>
+            <div class="admin-section">
+                <h2 style="margin-bottom:1rem">Đơn Hàng Gần Đây</h2>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Mã ĐH</th>
+                            <th>Khách Hàng</th>
+                            <th>Tổng Tiền</th>
+                            <th>Trạng Thái</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentOrders">
+                        <tr>
+                            <td colspan="4" style="text-align:center">Đang tải...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <script>
+        // Load stats
+        fetch('/api/books', { credentials: 'include' })
+            .then(r => r.json())
+            .then(books => document.getElementById('totalBooks').textContent = books.length)
+            .catch(e => { console.error('Books error:', e); document.getElementById('totalBooks').textContent = '0' });
+
+        fetch('/admin/api/users', { credentials: 'include' })
+            .then(r => r.json())
+            .then(users => document.getElementById('totalUsers').textContent = users.length)
+            .catch(e => { console.error('Users error:', e); document.getElementById('totalUsers').textContent = '0' });
+
+        fetch('/admin/api/memberships', { credentials: 'include' })
+            .then(r => r.json())
+            .then(memberships => document.getElementById('totalMemberships').textContent = memberships.length)
+            .catch(e => { console.error('Memberships error:', e); document.getElementById('totalMemberships').textContent = '0' });
+
+        // Load orders
+        fetch('/admin/api/orders', { credentials: 'include' })
+            .then(r => {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.json();
+            })
+            .then(orders => {
+                console.log('Orders loaded:', orders.length);
+                document.getElementById('totalOrders').textContent = orders.length;
+                const recent = orders.slice(0, 5);
+                if (recent.length === 0) {
+                    document.getElementById('recentOrders').innerHTML = '<tr><td colspan="4" style="text-align:center">Chưa có đơn hàng</td></tr>';
+                } else {
+                    document.getElementById('recentOrders').innerHTML = recent.map(o => `
+                        <tr>
+                            <td>#${o.orderId}</td>
+                            <td>${o.user ? (o.user.fullName || o.user.userName) : 'N/A'}</td>
+                            <td>${(o.totalAmount || 0).toLocaleString('vi-VN')} ₫</td>
+                            <td>${o.status || 'N/A'}</td>
+                        </tr>
+                    `).join('');
+                }
+            })
+            .catch(e => {
+                console.error('Orders error:', e);
+                document.getElementById('totalOrders').textContent = '0';
+                document.getElementById('recentOrders').innerHTML = '<tr><td colspan="4" style="text-align:center">Không thể tải đơn hàng</td></tr>';
+            });
+    </script>
+</body>
+
+</html>

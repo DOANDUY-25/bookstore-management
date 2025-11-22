@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đơn Hàng Của Tôi - Bookshop Green</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/index.html" class="navbar-brand">Bookshop Green</a>
+
+            <ul class="nav-menu">
+                <li><a href="/index.html" class="nav-link">Trang Chủ</a></li>
+                <li class="dropdown">
+                    <a href="/books.html" class="nav-link dropdown-toggle">Sách</a>
+                    <div class="dropdown-menu" id="categoryMenu">
+                        <a href="/books.html" class="dropdown-item">Tất Cả Sách</a>
+                    </div>
+                </li>
+                <li><a href="/cart.html" class="nav-link">Giỏ Hàng</a></li>
+            </ul>
+
+            <form id="searchForm" class="header-search">
+                <input type="text" id="searchQuery" placeholder="Tìm kiếm sách..." />
+                <button type="submit">Tìm kiếm</button>
+            </form>
+
+            <div id="authSection" class="auth-section"></div>
+        </div>
+    </nav>
+
+    <main class="content">
+        <div class="container">
+            <h1 class="section-title">Đơn Hàng Của Tôi</h1>
+
+            <div id="ordersContent">
+                <div class="alert alert-info">Đang tải đơn hàng...</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
+        <div
+            style="max-width: 500px; margin: 3rem auto; background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+            <h2 style="color: #2d6a4f; margin-bottom: 1.5rem; text-align: center;">Chọn Phương Thức Thanh Toán</h2>
+
+            <div
+                style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center;">
+                <p style="margin: 0; font-size: 0.9rem; color: #6c757d;">Đơn hàng #<span id="modalOrderId"></span></p>
+                <p style="margin: 0.5rem 0 0 0; font-size: 1.5rem; font-weight: bold; color: #2d6a4f;"
+                    id="modalOrderAmount">0 ₫</p>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #2d6a4f;">
+                    Phương thức thanh toán <span style="color: red;">*</span>
+                </label>
+                <select id="paymentMethod"
+                    style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
+                    <option value="">-- Chọn phương thức --</option>
+                    <option value="COD">Thanh toán khi nhận hàng (COD)</option>
+                    <option value="VNPAY">Thanh toán qua VNPay</option>
+                </select>
+            </div>
+
+            <div id="vnpayInfo"
+                style="display: none; background: #e7f3ff; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #007bff;">
+                <p style="margin: 0; font-size: 0.9rem; color: #004085;">
+                    <strong>Lưu ý:</strong> Bạn sẽ được chuyển đến trang thanh toán VNPay để hoàn tất giao dịch.
+                </p>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button onclick="processPayment()" class="btn btn-primary" style="flex: 1;">
+                    Xác Nhận Thanh Toán
+                </button>
+                <button onclick="closePaymentModal()" class="btn btn-outline" style="flex: 1;">
+                    Hủy
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VNPay QR Code Modal -->
+    <div id="vnpayQRModal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1002; overflow-y: auto;">
+        <div
+            style="max-width: 500px; margin: 2rem auto; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+            <!-- VNPay Header -->
+            <div
+                style="background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%); padding: 1.5rem; border-radius: 12px 12px 0 0; text-align: center;">
+                <h2 style="color: white; margin: 0; font-size: 1.8rem; font-weight: bold;">VNPAY</h2>
+                <p style="color: white; margin: 0.5rem 0 0 0; font-size: 1rem;">Cổng thanh toán điện tử</p>
+            </div>
+
+            <!-- VNPay Content -->
+            <div style="padding: 2rem;">
+                <h3 style="color: #0066cc; margin-bottom: 1rem; text-align: center;">Quét mã QR để thanh toán</h3>
+
+                <!-- Order Info -->
+                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: #6c757d;">Số đơn thanh toán:</span>
+                        <strong id="vnpayQROrderId"></strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: #6c757d;">Giá trị đơn hàng:</span>
+                        <strong style="color: #0066cc; font-size: 1.2rem;" id="vnpayQRAmount"></strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: #6c757d;">Phí giao dịch:</span>
+                        <strong>0 ₫</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: #6c757d;">Mã giao dịch:</span>
+                        <strong id="vnpayQRRefCode"></strong>
+                    </div>
+                </div>
+
+                <!-- QR Code -->
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <div
+                        style="background: white; padding: 1.5rem; border-radius: 8px; border: 2px solid #0066cc; display: inline-block;">
+                        <div id="vnpayQRCode" style="width: 200px; height: 200px; background: white;"></div>
+                    </div>
+                    <p style="margin-top: 1rem; color: #6c757d; font-size: 0.9rem;">
+                        Sử dụng ứng dụng ngân hàng để quét mã QR
+                    </p>
+                </div>
+
+                <!-- Warning -->
+                <div
+                    style="background: #fff3cd; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #ffc107;">
+                    <p style="margin: 0; font-size: 0.9rem; color: #856404;">
+                        <strong>Môi trường Test:</strong> Đây là QR code giả lập. Trong thực tế, đây sẽ là QR code
+                        thật
+                        từ VNPay.
+                    </p>
+                </div>
+
+                <!-- Buttons -->
+                <div style="display: flex; gap: 1rem; flex-direction: column;">
+                    <button onclick="confirmVNPayQRPayment()"
+                        style="width: 100%; padding: 1rem; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer;">
+                        Tôi Đã Thanh Toán
+                    </button>
+                    <button onclick="closeVNPayQRModal()"
+                        style="width: 100%; padding: 1rem; background: #6c757d; color: white; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer;">
+                        Hủy Thanh Toán
+                    </button>
+                </div>
+
+                <div style="text-align: center; margin-top: 1rem;">
+                    <p style="font-size: 0.85rem; color: #6c757d;">
+                        1900.5555.77 | hotro@vnpay.vn
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <p>&copy; 2025 Bookshop Green. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="/js/main.js"></script>
+    <script src="/js/auth.js?v=2"></script>
+    <script src="/js/notification.js"></script>
+    <script src="/js/search.js"></script>
+    <script src="/js/vnpay-qr.js"></script>
+    <script>
+        function loadOrders() {
+            fetch('/orders/api/my-orders', {
+                credentials: 'include'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Not authenticated');
+                    }
+                    return response.json();
+                })
+                .then(orders => {
+                    displayOrders(orders);
+                })
+                .catch(error => {
+                    console.error('Error loading orders:', error);
+                    document.getElementById('ordersContent').innerHTML = `
+                        <div class="alert alert-danger">
+                            Không thể tải đơn hàng. Vui lòng <a href="/login.html">đăng nhập</a>.
+                        </div>
+                    `;
+                });
+        }
+
+        function displayOrders(orders) {
+            const ordersContent = document.getElementById('ordersContent');
+
+            if (!orders || orders.length === 0) {
+                ordersContent.innerHTML = `
+                    <div class="alert alert-info">
+                        <p>Bạn chưa có đơn hàng nào</p>
+                        <a href="/books.html" class="btn btn-primary">Mua Sắm Ngay</a>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            orders.forEach(order => {
+                const orderDate = new Date(order.orderDate).toLocaleString('vi-VN');
+                const statusColor = getStatusColor(order.status);
+                const statusText = getStatusText(order.status);
+
+                // Thông tin giao hàng hoặc thông tin người đặt
+                let shippingInfo = '';
+                if (order.recipientName && order.shippingAddress) {
+                    // Có thông tin giao hàng riêng
+                    shippingInfo = `
+                        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                            <h4 style="color: #2d6a4f; margin-bottom: 0.5rem; font-size: 1rem;">Thông Tin Giao Hàng</h4>
+                            <p style="margin: 0.25rem 0; font-size: 0.9rem;"><strong>Người nhận:</strong> ${order.recipientName}</p>
+                            <p style="margin: 0.25rem 0; font-size: 0.9rem;"><strong>SĐT:</strong> ${order.recipientPhone || 'N/A'}</p>
+                            ${order.recipientEmail ? `<p style="margin: 0.25rem 0; font-size: 0.9rem;"><strong>Email:</strong> ${order.recipientEmail}</p>` : ''}
+                            <p style="margin: 0.25rem 0; font-size: 0.9rem;"><strong>Địa chỉ:</strong> ${order.shippingAddress}</p>
+                            ${order.orderNotes ? `<p style="margin: 0.25rem 0; font-size: 0.9rem;"><strong>Ghi chú:</strong> ${order.orderNotes}</p>` : ''}
+                        </div>
+                    `;
+                } else if (order.userInfo) {
+                    // Hiển thị thông tin người đặt hàng
+                    shippingInfo = `
+                        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                            <h4 style="color: #2d6a4f; margin-bottom: 0.5rem; font-size: 1rem;">Thông Tin Người Đặt</h4>
+                            <p style="margin: 0.25rem 0; font-size: 0.9rem;"><strong>Tên:</strong> ${order.userInfo.fullName || order.userInfo.userName}</p>
+                            ${order.userInfo.phone ? `<p style="margin: 0.25rem 0; font-size: 0.9rem;"><strong>SĐT:</strong> ${order.userInfo.phone}</p>` : ''}
+                            ${order.userInfo.email ? `<p style="margin: 0.25rem 0; font-size: 0.9rem;"><strong>Email:</strong> ${order.userInfo.email}</p>` : ''}
+                            ${order.userInfo.address ? `<p style="margin: 0.25rem 0; font-size: 0.9rem;"><strong>Địa chỉ:</strong> ${order.userInfo.address}</p>` : ''}
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <div style="background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 2px solid #e9ecef; padding-bottom: 1rem;">
+                            <div>
+                                <h3 style="color: #2d6a4f; margin-bottom: 0.5rem;">Đơn hàng #${order.orderId}</h3>
+                                <p style="color: #6c757d; font-size: 0.9rem;">${orderDate}</p>
+                            </div>
+                            <div style="text-align: right;">
+                                <span style="background: ${statusColor}; color: white; padding: 0.5rem 1rem; border-radius: 20px; font-weight: bold;">
+                                    ${statusText}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        ${shippingInfo}
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <p style="font-size: 0.95rem; color: #495057;"><strong>Số lượng sản phẩm:</strong> ${order.orderItems.length} sản phẩm</p>
+                            <p style="font-size: 1.2rem; color: #2d6a4f; font-weight: bold;"><strong>Tổng tiền:</strong> ${order.totalAmount.toLocaleString('vi-VN')} ₫</p>
+                        </div>
+
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button onclick="viewOrderDetail(${order.orderId})" class="btn btn-primary btn-sm">Xem Chi Tiết</button>
+                            ${order.status === 'PENDING' ? `
+                                <button onclick="showPaymentModal(${order.orderId}, ${order.totalAmount})" class="btn btn-primary btn-sm" style="background: #28a745;">Thanh Toán</button>
+                                <button onclick="cancelOrder(${order.orderId})" class="btn btn-outline btn-sm" style="background: #dc3545; color: white;">Hủy Đơn</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            ordersContent.innerHTML = html;
+        }
+
+        function getStatusColor(status) {
+            switch (status) {
+                case 'PENDING': return '#ffc107';
+                case 'CONFIRMED': return '#17a2b8';
+                case 'SHIPPING': return '#007bff';
+                case 'DELIVERED': return '#28a745';
+                case 'CANCELLED': return '#dc3545';
+                default: return '#6c757d';
+            }
+        }
+
+        function getStatusText(status) {
+            switch (status) {
+                case 'PENDING': return 'Chờ xác nhận';
+                case 'CONFIRMED': return 'Đã xác nhận';
+                case 'SHIPPING': return 'Đang giao';
+                case 'DELIVERED': return 'Đã giao';
+                case 'CANCELLED': return 'Đã hủy';
+                default: return status;
+            }
+        }
+
+        function viewOrderDetail(orderId) {
+            window.location.href = `/order-detail.html?id=${orderId}`;
+        }
+
+        function cancelOrder(orderId) {
+            if (!confirm('Bạn có chắc muốn hủy đơn hàng này?')) {
+                return;
+            }
+
+            fetch(`/orders/${orderId}/cancel`, {
+                method: 'POST',
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showSuccess('Hủy Đơn Thành Công!', 'Đơn hàng đã được hủy.');
+                        loadOrders(); // Reload orders
+                    } else {
+                        showError('Lỗi', data.message || 'Không thể hủy đơn hàng.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError('Lỗi', 'Không thể hủy đơn hàng. Vui lòng thử lại.');
+                });
+        }
+
+        // Payment Modal Functions
+        let currentOrderId = null;
+        let currentOrderAmount = 0;
+
+        function showPaymentModal(orderId, amount) {
+            currentOrderId = orderId;
+            currentOrderAmount = amount;
+
+            document.getElementById('modalOrderId').textContent = orderId;
+            document.getElementById('modalOrderAmount').textContent = amount.toLocaleString('vi-VN') + ' ₫';
+            document.getElementById('paymentMethod').value = '';
+            document.getElementById('vnpayInfo').style.display = 'none';
+            document.getElementById('paymentModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            currentOrderId = null;
+            currentOrderAmount = 0;
+        }
+
+        // Show VNPay info when selected
+        document.addEventListener('DOMContentLoaded', function () {
+            const paymentMethodSelect = document.getElementById('paymentMethod');
+            if (paymentMethodSelect) {
+                paymentMethodSelect.addEventListener('change', function () {
+                    const vnpayInfo = document.getElementById('vnpayInfo');
+                    if (this.value === 'VNPAY') {
+                        vnpayInfo.style.display = 'block';
+                    } else {
+                        vnpayInfo.style.display = 'none';
+                    }
+                });
+            }
+        });
+
+        function processPayment() {
+            const paymentMethod = document.getElementById('paymentMethod').value;
+
+            if (!paymentMethod) {
+                showError('Lỗi', 'Vui lòng chọn phương thức thanh toán');
+                return;
+            }
+
+            console.log('processPayment:', { paymentMethod, currentOrderId, currentOrderAmount });
+
+            if (paymentMethod === 'COD') {
+                // COD Payment
+                processCODPayment();
+            } else if (paymentMethod === 'VNPAY') {
+                // VNPay Payment with QR Code
+                // Save values before closing modal (which resets them)
+                const orderId = currentOrderId;
+                const amount = currentOrderAmount;
+                closePaymentModal();
+                showVNPayQRModal(orderId, amount);
+            }
+        }
+
+        function processCODPayment() {
+            fetch(`/payment/cod/${currentOrderId}`, {
+                method: 'POST',
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        closePaymentModal();
+                        showSuccess('Đặt Hàng Thành Công!', 'Đơn hàng sẽ được thanh toán khi nhận hàng.');
+                        setTimeout(() => {
+                            loadOrders();
+                        }, 2000);
+                    } else {
+                        showError('Lỗi', data.message || 'Không thể xử lý thanh toán.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError('Lỗi', 'Không thể xử lý thanh toán. Vui lòng thử lại.');
+                });
+        }
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function (e) {
+            const paymentModal = document.getElementById('paymentModal');
+            const vnpayQRModal = document.getElementById('vnpayQRModal');
+
+            if (e.target === paymentModal) {
+                closePaymentModal();
+            }
+            if (e.target === vnpayQRModal) {
+                closeVNPayQRModal();
+            }
+        });
+
+        // Load orders on page load
+        loadOrders();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Đơn Quà Tặng - Bookshop Green</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/index.html" class="navbar-brand">Bookshop Green</a>
+
+            <ul class="nav-menu">
+                <li><a href="/index.html" class="nav-link">Trang Chủ</a></li>
+                <li class="dropdown">
+                    <a href="/books.html" class="nav-link dropdown-toggle">Sách</a>
+                    <div class="dropdown-menu" id="categoryMenu">
+                        <a href="/books.html" class="dropdown-item">Tất Cả Sách</a>
+                    </div>
+                </li>
+                <li><a href="/gift-packages.html" class="nav-link">Mua Tặng Quà</a></li>
+                <li><a href="/cart.html" class="nav-link">Giỏ Hàng</a></li>
+            </ul>
+
+            <form id="searchForm" class="header-search">
+                <input type="text" id="searchQuery" placeholder="Tìm kiếm sách..." />
+                <button type="submit">Tìm kiếm</button>
+            </form>
+
+            <div id="authSection" class="auth-section"></div>
+        </div>
+    </nav>
+
+    <main class="content">
+        <div class="container">
+            <div style="margin-bottom: 1.5rem;">
+                <a href="/gift-orders.html" class="btn btn-outline">← Quay Lại Đơn Quà Tặng</a>
+            </div>
+
+            <h1 class="section-title">Chi Tiết Đơn Quà Tặng</h1>
+
+            <div id="giftOrderDetailContent">
+                <div class="alert alert-info">Đang tải thông tin đơn quà tặng...</div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <p>&copy; 2025 Bookshop Green. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/auth.js?v=2"></script>
+    <script src="/js/notification.js"></script>
+    <script src="/js/search.js"></script>
+    <script>
+        function getOrderIdFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+
+        function loadGiftOrderDetail() {
+            const orderId = getOrderIdFromURL();
+
+            if (!orderId) {
+                document.getElementById('giftOrderDetailContent').innerHTML = `
+                    <div class="alert alert-danger">
+                        Không tìm thấy mã đơn quà tặng.
+                    </div>
+                `;
+                return;
+            }
+
+            fetch(`/api/gift-orders/${orderId}`, {
+                credentials: 'include'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Không thể tải đơn quà tặng');
+                    }
+                    return response.json();
+                })
+                .then(order => {
+                    displayGiftOrderDetail(order);
+                })
+                .catch(error => {
+                    console.error('Error loading gift order:', error);
+                    document.getElementById('giftOrderDetailContent').innerHTML = `
+                        <div class="alert alert-danger">
+                            Không thể tải thông tin đơn quà tặng. Vui lòng thử lại sau.
+                        </div>
+                    `;
+                });
+        }
+
+        function displayGiftOrderDetail(order) {
+            const giftOrderDetailContent = document.getElementById('giftOrderDetailContent');
+            const orderDate = new Date(order.createAt).toLocaleString('vi-VN');
+            const statusColor = getStatusColor(order.status);
+            const statusText = getStatusText(order.status);
+
+            // Thông tin người đặt
+            let userInfo = '';
+            if (order.user) {
+                userInfo = `
+                    <div style="background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <h3 style="color: #2d6a4f; margin-bottom: 1rem; border-bottom: 2px solid #e9ecef; padding-bottom: 0.5rem;">Thông Tin Người Đặt</h3>
+                        <div style="display: grid; gap: 0.75rem;">
+                            <p style="margin: 0;"><strong>Tên:</strong> ${order.user.fullName || order.user.userName}</p>
+                            ${order.user.phone ? `<p style="margin: 0;"><strong>SĐT:</strong> ${order.user.phone}</p>` : ''}
+                            ${order.user.email ? `<p style="margin: 0;"><strong>Email:</strong> ${order.user.email}</p>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            const html = `
+                <div style="background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 2px solid #e9ecef; padding-bottom: 1rem;">
+                        <div>
+                            <h2 style="color: #2d6a4f; margin-bottom: 0.5rem;">Đơn quà tặng #${order.orderGiftId}</h2>
+                            <p style="color: #6c757d; margin: 0;">Ngày đặt: ${orderDate}</p>
+                        </div>
+                        <div>
+                            <span style="background: ${statusColor}; color: white; padding: 0.75rem 1.5rem; border-radius: 25px; font-weight: bold; font-size: 1.1rem;">
+                                ${statusText}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                ${userInfo}
+
+                <div style="background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <h3 style="color: #2d6a4f; margin-bottom: 1rem; border-bottom: 2px solid #e9ecef; padding-bottom: 0.5rem;">Thông Tin Người Nhận</h3>
+                    <div style="display: grid; gap: 0.75rem;">
+                        <p style="margin: 0;"><strong>Người nhận:</strong> ${order.recipientName}</p>
+                        <p style="margin: 0;"><strong>Số điện thoại:</strong> ${order.recipientPhone}</p>
+                        <p style="margin: 0;"><strong>Địa chỉ giao hàng:</strong> ${order.recipientAddress}</p>
+                        ${order.message ? `<p style="margin: 0;"><strong>Lời nhắn:</strong> ${order.message}</p>` : ''}
+                    </div>
+                </div>
+
+                ${order.giftPackage ? `
+                <div style="background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <h3 style="color: #2d6a4f; margin-bottom: 1rem; border-bottom: 2px solid #e9ecef; padding-bottom: 0.5rem;">Thông Tin Gói Quà</h3>
+                    <div style="display: grid; gap: 0.75rem;">
+                        <p style="margin: 0;"><strong>Tên gói:</strong> ${order.giftPackage.packageName}</p>
+                        ${order.giftPackage.description ? `<p style="margin: 0;"><strong>Mô tả:</strong> ${order.giftPackage.description}</p>` : ''}
+                        <p style="margin: 0;"><strong>Phí gói quà:</strong> ${order.giftPackage.packageFee ? order.giftPackage.packageFee.toLocaleString('vi-VN') + ' ₫' : 'N/A'}</p>
+                    </div>
+                </div>
+                ` : ''}
+
+                <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <h3 style="color: #2d6a4f; margin-bottom: 1rem; border-bottom: 2px solid #e9ecef; padding-bottom: 0.5rem;">Tổng Kết Đơn Hàng</h3>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; padding: 0.5rem 0;">
+                        <span style="font-size: 1.1rem;">Tổng tiền:</span>
+                        <span style="font-size: 1.1rem;">${order.totalAmount.toLocaleString('vi-VN')} ₫</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; padding: 0.5rem 0; border-top: 1px solid #e9ecef;">
+                        <span style="font-size: 1.1rem;">Phí vận chuyển:</span>
+                        <span style="font-size: 1.1rem; color: #28a745;">Miễn phí</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 1rem 0; border-top: 2px solid #2d6a4f; margin-top: 0.75rem;">
+                        <span style="font-size: 1.3rem; font-weight: bold; color: #2d6a4f;">Tổng cộng:</span>
+                        <span style="font-size: 1.5rem; font-weight: bold; color: #2d6a4f;">${order.totalAmount.toLocaleString('vi-VN')} ₫</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1.5rem; text-align: center;">
+                    <a href="/gift-orders.html" class="btn btn-primary">← Quay Lại Danh Sách Đơn Quà Tặng</a>
+                </div>
+            `;
+
+            giftOrderDetailContent.innerHTML = html;
+        }
+
+        function getStatusColor(status) {
+            switch (status) {
+                case 'PENDING': return '#ffc107';
+                case 'PAID': return '#17a2b8';
+                case 'PROCESSING': return '#007bff';
+                case 'SHIPPING': return '#6f42c1';
+                case 'DELIVERED': return '#28a745';
+                case 'CANCELLED': return '#dc3545';
+                default: return '#6c757d';
+            }
+        }
+
+        function getStatusText(status) {
+            switch (status) {
+                case 'PENDING': return 'Chờ thanh toán';
+                case 'PAID': return 'Đã thanh toán';
+                case 'PROCESSING': return 'Đang xử lý';
+                case 'SHIPPING': return 'Đang giao';
+                case 'DELIVERED': return 'Đã giao';
+                case 'CANCELLED': return 'Đã hủy';
+                default: return status;
+            }
+        }
+
+        // Load gift order detail on page load
+        loadGiftOrderDetail();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt Đơn Quà Tặng - Bookshop Green</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/index.html" class="navbar-brand">Bookshop Green</a>
+            <ul class="nav-menu">
+                <li><a href="/index.html" class="nav-link">Trang Chủ</a></li>
+                <li><a href="/books.html" class="nav-link">Sách</a></li>
+                <li><a href="/gift-packages.html" class="nav-link active">Mua Tặng Quà</a></li>
+                <li><a href="/cart.html" class="nav-link">Giỏ Hàng</a></li>
+            </ul>
+            <div id="authSection" class="auth-section"></div>
+        </div>
+    </nav>
+
+    <main class="content">
+        <div class="container">
+            <h1 class="section-title">Thông Tin Đơn Quà Tặng</h1>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px;">
+                <!-- Form Section -->
+                <div>
+                    <form id="giftOrderForm">
+                        <h3 style="color: #2c5f2d; margin-bottom: 20px;">Thông Tin Người Tặng</h3>
+
+                        <div class="form-group">
+                            <label for="senderName">Tên Người Tặng <span style="color: red;">*</span></label>
+                            <input type="text" id="senderName" name="senderName" required class="form-control"
+                                placeholder="Nhập tên của bạn">
+                        </div>
+
+                        <h3 style="color: #2c5f2d; margin: 30px 0 20px;">Thông Tin Người Nhận</h3>
+
+                        <div class="form-group">
+                            <label for="recipientName">Tên Người Nhận <span style="color: red;">*</span></label>
+                            <input type="text" id="recipientName" name="recipientName" required class="form-control"
+                                placeholder="Nhập tên người nhận">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="recipientPhone">Số Điện Thoại <span style="color: red;">*</span></label>
+                            <input type="tel" id="recipientPhone" name="recipientPhone" required class="form-control"
+                                placeholder="Nhập số điện thoại">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="recipientAddress">Địa Chỉ Nhận Hàng <span style="color: red;">*</span></label>
+                            <textarea id="recipientAddress" name="recipientAddress" required class="form-control"
+                                rows="3" placeholder="Nhập địa chỉ đầy đủ"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message">Lời Nhắn Gửi</label>
+                            <textarea id="message" name="message" class="form-control" rows="4"
+                                placeholder="Nhập lời nhắn gửi kèm theo quà (tùy chọn)"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="deliveryDate">Ngày Giao Hàng Mong Muốn</label>
+                            <input type="date" id="deliveryDate" name="deliveryDate" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="deliveryMethod">Phương Thức Giao Hàng</label>
+                            <select id="deliveryMethod" name="deliveryMethod" class="form-control">
+                                <option value="Giao hàng tiêu chuẩn">Giao hàng tiêu chuẩn (3-5 ngày)</option>
+                                <option value="Giao hàng nhanh">Giao hàng nhanh (1-2 ngày)</option>
+                                <option value="Giao hàng hỏa tốc">Giao hàng hỏa tốc (trong ngày)</option>
+                            </select>
+                        </div>
+
+                        <h3 style="color: #2c5f2d; margin: 30px 0 20px;">Phương Thức Thanh Toán</h3>
+
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" name="paymentMethod" value="COD" checked>
+                                Thanh toán khi nhận hàng (COD)
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" name="paymentMethod" value="VNPAY">
+                                Thanh toán qua VNPay
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" name="paymentMethod" value="BANK_TRANSFER">
+                                Chuyển khoản ngân hàng
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary"
+                            style="width: 100%; margin-top: 20px; padding: 15px;">
+                            Tạo Đơn Quà Tặng
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Order Summary Section -->
+                <div>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; position: sticky; top: 20px;">
+                        <h3 style="color: #2c5f2d; margin-top: 0;">Tóm Tắt Đơn Hàng</h3>
+
+                        <div id="orderSummary">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+
+                        <hr style="margin: 20px 0;">
+
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Tổng tiền sách:</span>
+                            <span id="booksTotal">0 ₫</span>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Phí gói quà:</span>
+                            <span id="packageFee">0 ₫</span>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Phí vận chuyển:</span>
+                            <span id="shippingFee">30,000 ₫</span>
+                        </div>
+
+                        <hr style="margin: 20px 0; border-top: 2px solid #2c5f2d;">
+
+                        <div
+                            style="display: flex; justify-content: space-between; font-size: 20px; font-weight: bold; color: #2c5f2d;">
+                            <span>Tổng cộng:</span>
+                            <span id="grandTotal">0 ₫</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <p>&copy; 2025 Bookshop Green. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/js/auth.js?v=2"></script>
+    <script src="/js/notification.js"></script>
+    <script>
+        let giftOrderData = null;
+        const SHIPPING_FEE = 30000;
+
+        // Load gift order data from sessionStorage
+        document.addEventListener('DOMContentLoaded', function () {
+            const storedData = sessionStorage.getItem('giftOrder');
+            if (!storedData) {
+                alert('Không tìm thấy thông tin đơn hàng. Vui lòng chọn lại sách và gói quà.');
+                window.location.href = '/gift-packages.html';
+                return;
+            }
+
+            giftOrderData = JSON.parse(storedData);
+            displayOrderSummary();
+            calculateTotal();
+
+            // Set minimum delivery date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('deliveryDate').min = tomorrow.toISOString().split('T')[0];
+
+            // Update shipping fee when delivery method changes
+            document.getElementById('deliveryMethod').addEventListener('change', function () {
+                updateShippingFee(this.value);
+            });
+        });
+
+        function displayOrderSummary() {
+            const summaryDiv = document.getElementById('orderSummary');
+            let html = '';
+
+            // Display package if selected
+            if (giftOrderData.package) {
+                html += `
+                    <div style="padding: 10px; background: white; border-radius: 5px; margin-bottom: 10px;">
+                        <strong>${giftOrderData.package.name}</strong><br>
+                        <span style="color: #666;">${giftOrderData.package.fee.toLocaleString('vi-VN')} ₫</span>
+                    </div>
+                `;
+            }
+
+            // Display books
+            html += '<h4 style="margin: 15px 0 10px;">Sách đã chọn:</h4>';
+            giftOrderData.books.forEach(book => {
+                html += `
+                    <div style="padding: 10px; background: white; border-radius: 5px; margin-bottom: 10px;">
+                        <strong>${book.title}</strong><br>
+                        <span style="color: #666;">${book.price.toLocaleString('vi-VN')} ₫ x ${book.quantity}</span>
+                    </div>
+                `;
+            });
+
+            summaryDiv.innerHTML = html;
+        }
+
+        function updateShippingFee(method) {
+            let fee = SHIPPING_FEE;
+            if (method === 'Giao hàng nhanh') {
+                fee = 50000;
+            } else if (method === 'Giao hàng hỏa tốc') {
+                fee = 100000;
+            }
+            document.getElementById('shippingFee').textContent = fee.toLocaleString('vi-VN') + ' ₫';
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            let booksTotal = 0;
+            giftOrderData.books.forEach(book => {
+                booksTotal += book.price * book.quantity;
+            });
+
+            const packageFee = giftOrderData.package ? giftOrderData.package.fee : 0;
+            const shippingFeeText = document.getElementById('shippingFee').textContent;
+            const shippingFee = parseInt(shippingFeeText.replace(/[^\d]/g, ''));
+
+            const grandTotal = booksTotal + packageFee + shippingFee;
+
+            document.getElementById('booksTotal').textContent = booksTotal.toLocaleString('vi-VN') + ' ₫';
+            document.getElementById('packageFee').textContent = packageFee.toLocaleString('vi-VN') + ' ₫';
+            document.getElementById('grandTotal').textContent = grandTotal.toLocaleString('vi-VN') + ' ₫';
+        }
+
+        // Handle form submission
+        document.getElementById('giftOrderForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Check if user is logged in
+            fetch('/api/auth/me', {
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.authenticated) {
+                        // User is logged in, proceed with order creation
+                        createGiftOrder();
+                    } else {
+                        alert('Vui lòng đăng nhập để đặt hàng!');
+                        window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.href);
+                    }
+                })
+                .catch(error => {
+                    console.error('Auth check error:', error);
+                    alert('Vui lòng đăng nhập để đặt hàng!');
+                    window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.href);
+                });
+        });
+
+        function createGiftOrder() {
+            const formData = new FormData(document.getElementById('giftOrderForm'));
+            const shippingFeeText = document.getElementById('shippingFee').textContent;
+            const shippingFee = parseInt(shippingFeeText.replace(/[^\d]/g, ''));
+
+            const orderData = {
+                senderName: formData.get('senderName'),
+                recipientName: formData.get('recipientName'),
+                recipientPhone: formData.get('recipientPhone'),
+                recipientAddress: formData.get('recipientAddress'),
+                message: formData.get('message'),
+                deliveryDate: formData.get('deliveryDate') || null,
+                deliveryMethod: formData.get('deliveryMethod'),
+                paymentMethod: formData.get('paymentMethod'),
+                giftPackageId: giftOrderData.package ? giftOrderData.package.id : null,
+                shippingFee: shippingFee,
+                items: giftOrderData.books.map(book => ({
+                    bookId: book.id,
+                    quantity: book.quantity
+                }))
+            };
+
+            fetch('/api/gift-orders/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify(orderData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success || data.orderGiftId) {
+                        sessionStorage.removeItem('giftOrder');
+                        alert('Đặt đơn quà tặng thành công!');
+                        window.location.href = '/gift-orders.html';
+                    } else {
+                        alert('Lỗi: ' + (data.message || 'Không thể tạo đơn hàng'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại.');
+                });
+        }
+    </script>
+</body>
+
+</html>

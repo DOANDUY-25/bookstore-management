@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Gói Quà - Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="admin-style.css">
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center
+        }
+
+        .modal.show {
+            display: flex
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto
+        }
+
+        .form-group {
+            margin-bottom: 1rem
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px
+        }
+
+        .form-group textarea {
+            min-height: 100px
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem
+        }
+
+        .package-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <h2>Admin Panel</h2>
+            <ul class="admin-menu">
+                <li><a href="/admin/dashboard.html">Dashboard</a></li>
+                <li><a href="/admin/books.html">Quản Lý Sách</a></li>
+                <li><a href="/admin/orders.html">Quản Lý Đơn Hàng</a></li>
+                <li><a href="/admin/gift-orders.html">Quản Lý Đơn Quà Tặng</a></li>
+                <li><a href="/admin/gift-packages.html" class="active">Quản Lý Gói Quà</a></li>
+                <li><a href="/admin/users.html">Quản Lý Người Dùng</a></li>
+                <li><a href="/admin/memberships.html">Quản Lý Thẻ Thành Viên</a></li>
+                <li><a href="/index.html">Về Trang Chủ</a></li>
+            </ul>
+        </aside>
+        <main class="admin-content">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+                <h1 style="color:#2d6a4f;margin:0">Quản Lý Gói Quà</h1>
+                <button class="btn btn-primary" onclick="showAddModal()">Thêm Gói Quà Mới</button>
+            </div>
+            <div style="margin-bottom:1rem">
+                <input type="text" id="searchInput" placeholder="🔍 Tìm kiếm theo tên gói, loại hộp, thiệp..."
+                    style="width:100%;max-width:500px;padding:0.75rem;border:1px solid #ddd;border-radius:4px;font-size:14px"
+                    oninput="filterPackages()">
+            </div>
+            <div class="admin-section">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Hình Ảnh</th>
+                            <th>Tên Gói</th>
+                            <th>Hộp Quà</th>
+                            <th>Thiệp</th>
+                            <th>Giấy Gói</th>
+                            <th>Phí Gói</th>
+                            <th>Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="packagesTable">
+                        <tr>
+                            <td colspan="8" style="text-align:center">Đang tải...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <div id="packageModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Thêm Gói Quà Mới</h2>
+            <form id="packageForm">
+                <div class="form-group">
+                    <label>ID</label>
+                    <input type="number" id="packageId" readonly style="background:#f5f5f5">
+                </div>
+                <div class="form-group">
+                    <label>Tên Gói Quà *</label>
+                    <input type="text" id="packageName" required maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label>Loại Hộp Quà</label>
+                    <input type="text" id="giftBox" maxlength="100" placeholder="VD: Hộp gỗ cao cấp">
+                </div>
+                <div class="form-group">
+                    <label>Loại Thiệp</label>
+                    <input type="text" id="greetingCard" maxlength="100" placeholder="VD: Thiệp chúc mừng">
+                </div>
+                <div class="form-group">
+                    <label>Loại Giấy Gói</label>
+                    <input type="text" id="paperType" maxlength="100" placeholder="VD: Giấy kraft">
+                </div>
+                <div class="form-group">
+                    <label>Mô Tả</label>
+                    <textarea id="description" placeholder="Mô tả chi tiết về gói quà..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Phí Gói Quà (₫) *</label>
+                    <input type="number" id="packageFee" required min="0" step="1000" value="0">
+                </div>
+                <div class="form-group">
+                    <label>URL Hình Ảnh</label>
+                    <input type="text" id="imageURL" maxlength="255" placeholder="https://...">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                    <button type="button" class="btn btn-outline" onclick="closeModal()">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="/js/notification.js"></script>
+    <script>
+        let editMode = false, allPackages = [];
+        function loadPackages() {
+            fetch('/admin/api/gift-packages', { credentials: 'include' })
+                .then(r => r.json())
+                .then(packages => { allPackages = packages; displayPackages(packages); })
+                .catch(() => document.getElementById('packagesTable').innerHTML = '<tr><td colspan="8" style="text-align:center">Không thể tải dữ liệu</td></tr>');
+        }
+        function displayPackages(packages) {
+            document.getElementById('packagesTable').innerHTML = packages.length ? packages.map(p => `
+                <tr>
+                    <td>${p.giftPackageId}</td>
+                    <td>${p.imageURL ? `<img src="${p.imageURL}" class="package-image" alt="${p.packageName}">` : 'N/A'}</td>
+                    <td>${p.packageName}</td>
+                    <td>${p.giftBox || 'N/A'}</td>
+                    <td>${p.greetingCard || 'N/A'}</td>
+                    <td>${p.paperType || 'N/A'}</td>
+                    <td>${(p.packageFee || 0).toLocaleString('vi-VN')} ₫</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick='editPackage(${JSON.stringify(p)})'>Sửa</button>
+                        <button class="btn btn-sm btn-danger" onclick="deletePackage(${p.giftPackageId})">Xóa</button>
+                    </td>
+                </tr>
+            `).join('') : '<tr><td colspan="8" style="text-align:center">Không tìm thấy gói quà</td></tr>';
+        }
+        function filterPackages() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allPackages.filter(p =>
+                (p.packageName || '').toLowerCase().includes(q) ||
+                (p.giftBox || '').toLowerCase().includes(q) ||
+                (p.greetingCard || '').toLowerCase().includes(q) ||
+                (p.paperType || '').toLowerCase().includes(q) ||
+                (p.giftPackageId + '').includes(q)
+            );
+            displayPackages(filtered);
+        }
+        function showAddModal() {
+            editMode = false;
+            document.getElementById('modalTitle').textContent = 'Thêm Gói Quà Mới';
+            document.getElementById('packageForm').reset();
+            document.getElementById('packageId').value = '';
+            document.getElementById('packageModal').classList.add('show');
+        }
+        function editPackage(pkg) {
+            editMode = true;
+            document.getElementById('modalTitle').textContent = 'Sửa Thông Tin Gói Quà';
+            document.getElementById('packageId').value = pkg.giftPackageId;
+            document.getElementById('packageName').value = pkg.packageName;
+            document.getElementById('giftBox').value = pkg.giftBox || '';
+            document.getElementById('greetingCard').value = pkg.greetingCard || '';
+            document.getElementById('paperType').value = pkg.paperType || '';
+            document.getElementById('description').value = pkg.description || '';
+            document.getElementById('packageFee').value = pkg.packageFee || 0;
+            document.getElementById('imageURL').value = pkg.imageURL || '';
+            document.getElementById('packageModal').classList.add('show');
+        }
+        function closeModal() {
+            document.getElementById('packageModal').classList.remove('show');
+        }
+        document.getElementById('packageForm').onsubmit = function (e) {
+            e.preventDefault();
+            const data = {
+                packageName: document.getElementById('packageName').value,
+                giftBox: document.getElementById('giftBox').value,
+                greetingCard: document.getElementById('greetingCard').value,
+                paperType: document.getElementById('paperType').value,
+                description: document.getElementById('description').value,
+                packageFee: parseFloat(document.getElementById('packageFee').value),
+                imageURL: document.getElementById('imageURL').value
+            };
+            const url = editMode ? `/admin/api/gift-packages/${document.getElementById('packageId').value}` : '/admin/api/gift-packages';
+            const method = editMode ? 'PUT' : 'POST';
+            fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data), credentials: 'include' })
+                .then(r => {
+                    if (!r.ok) throw new Error('Lỗi khi lưu');
+                    return r.json();
+                })
+                .then(() => { showSuccess('Thành Công', editMode ? 'Đã cập nhật gói quà' : 'Đã thêm gói quà mới'); closeModal(); loadPackages(); })
+                .catch(() => showError('Lỗi', 'Không thể lưu gói quà'));
+        };
+        function deletePackage(id) {
+            if (!confirm('Bạn có chắc muốn xóa gói quà này?')) return;
+            fetch(`/admin/api/gift-packages/${id}`, { method: 'DELETE', credentials: 'include' })
+                .then(r => {
+                    if (!r.ok) throw new Error('Lỗi khi xóa');
+                    showSuccess('Thành Công', 'Đã xóa gói quà');
+                    loadPackages();
+                })
+                .catch(() => showError('Lỗi', 'Không thể xóa gói quà'));
+        }
+        loadPackages();
+    </script>
+</body>
+
+</html>

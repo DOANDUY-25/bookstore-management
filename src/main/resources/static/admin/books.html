@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Sách - Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="admin-style.css">
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center
+        }
+
+        .modal.show {
+            display: flex
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto
+        }
+
+        .form-group {
+            margin-bottom: 1rem
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px
+        }
+
+        .form-group textarea {
+            min-height: 100px
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <h2>Admin Panel</h2>
+            <ul class="admin-menu">
+                <li><a href="/admin/dashboard.html">Dashboard</a></li>
+                <li><a href="/admin/books.html" class="active">Quản Lý Sách</a></li>
+                <li><a href="/admin/orders.html">Quản Lý Đơn Hàng</a></li>
+                <li><a href="/admin/gift-orders.html">Quản Lý Đơn Quà Tặng</a></li>
+                <li><a href="/admin/gift-packages.html">Quản Lý Gói Quà</a></li>
+                <li><a href="/admin/users.html">Quản Lý Người Dùng</a></li>
+                <li><a href="/admin/memberships.html">Quản Lý Thẻ Thành Viên</a></li>
+                <li><a href="/index.html">Về Trang Chủ</a></li>
+            </ul>
+        </aside>
+        <main class="admin-content">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+                <h1 style="color:#2d6a4f;margin:0">Quản Lý Sách</h1>
+                <button class="btn btn-primary" onclick="showAddModal()">Thêm Sách Mới</button>
+            </div>
+            <div style="margin-bottom:1rem">
+                <input type="text" id="searchInput" placeholder="🔍 Tìm kiếm theo tên, tác giả, thể loại, ID..."
+                    style="width:100%;max-width:500px;padding:0.75rem;border:1px solid #ddd;border-radius:4px;font-size:14px"
+                    oninput="filterBooks()">
+            </div>
+            <div class="admin-section">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên Sách</th>
+                            <th>Tác Giả</th>
+                            <th>Thể Loại</th>
+                            <th>Giá</th>
+                            <th>Tồn Kho</th>
+                            <th>Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="booksTable">
+                        <tr>
+                            <td colspan="7" style="text-align:center">Đang tải...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <div id="bookModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Thêm Sách Mới</h2>
+            <form id="bookForm">
+                <div class="form-group">
+                    <label>ID</label>
+                    <input type="number" id="bookId" readonly style="background:#f5f5f5">
+                </div>
+                <div class="form-group">
+                    <label>Tên Sách *</label>
+                    <input type="text" id="title" required maxlength="255">
+                </div>
+                <div class="form-group">
+                    <label>Tác Giả</label>
+                    <input type="text" id="author" maxlength="255">
+                </div>
+                <div class="form-group">
+                    <label>Thể Loại</label>
+                    <input type="text" id="category" maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label>Giá *</label>
+                    <input type="number" id="price" required min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Tồn Kho *</label>
+                    <input type="number" id="stock" required min="0">
+                </div>
+                <div class="form-group">
+                    <label>Mô Tả</label>
+                    <textarea id="description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>URL Ảnh Bìa</label>
+                    <input type="text" id="coverImageURL" maxlength="255">
+                </div>
+                <div class="form-group">
+                    <label>Đánh Giá (0-5)</label>
+                    <input type="number" id="rating" min="0" max="5" step="0.1" value="0">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                    <button type="button" class="btn btn-outline" onclick="closeModal()">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="/js/notification.js"></script>
+    <script>
+        let editMode = false, allBooks = [];
+        function loadBooks() {
+            fetch('/api/books', { credentials: 'include' })
+                .then(r => r.json())
+                .then(books => { allBooks = books; displayBooks(books); })
+                .catch(() => document.getElementById('booksTable').innerHTML = '<tr><td colspan="7" style="text-align:center">Không thể tải dữ liệu</td></tr>');
+        }
+        function displayBooks(books) {
+            document.getElementById('booksTable').innerHTML = books.length ? books.map(b => `
+                <tr>
+                    <td>${b.bookId}</td>
+                    <td>${b.title}</td>
+                    <td>${b.author || 'N/A'}</td>
+                    <td>${b.category || 'N/A'}</td>
+                    <td>${(b.price || 0).toLocaleString('vi-VN')} ₫</td>
+                    <td>${b.stock || 0}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick='editBook(${JSON.stringify(b)})'>Sửa</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteBook(${b.bookId})">Xóa</button>
+                    </td>
+                </tr>
+            `).join('') : '<tr><td colspan="7" style="text-align:center">Không tìm thấy sách</td></tr>';
+        }
+        function filterBooks() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allBooks.filter(b =>
+                (b.title || '').toLowerCase().includes(q) ||
+                (b.author || '').toLowerCase().includes(q) ||
+                (b.category || '').toLowerCase().includes(q) ||
+                (b.bookId + '').includes(q)
+            );
+            displayBooks(filtered);
+        }
+        function showAddModal() {
+            editMode = false;
+            document.getElementById('modalTitle').textContent = 'Thêm Sách Mới';
+            document.getElementById('bookForm').reset();
+            document.getElementById('bookId').value = '';
+            document.getElementById('bookModal').classList.add('show');
+        }
+        function editBook(book) {
+            editMode = true;
+            document.getElementById('modalTitle').textContent = 'Sửa Thông Tin Sách';
+            document.getElementById('bookId').value = book.bookId;
+            document.getElementById('title').value = book.title;
+            document.getElementById('author').value = book.author || '';
+            document.getElementById('category').value = book.category || '';
+            document.getElementById('price').value = book.price || 0;
+            document.getElementById('stock').value = book.stock || 0;
+            document.getElementById('description').value = book.description || '';
+            document.getElementById('coverImageURL').value = book.coverImageURL || '';
+            document.getElementById('rating').value = book.rating || 0;
+            document.getElementById('bookModal').classList.add('show');
+        }
+        function closeModal() {
+            document.getElementById('bookModal').classList.remove('show');
+        }
+        document.getElementById('bookForm').onsubmit = function (e) {
+            e.preventDefault();
+            const data = {
+                title: document.getElementById('title').value,
+                author: document.getElementById('author').value,
+                category: document.getElementById('category').value,
+                price: parseFloat(document.getElementById('price').value),
+                stock: parseInt(document.getElementById('stock').value),
+                description: document.getElementById('description').value,
+                coverImageURL: document.getElementById('coverImageURL').value,
+                rating: parseFloat(document.getElementById('rating').value) || 0
+            };
+            const url = editMode ? `/admin/api/books/${document.getElementById('bookId').value}` : '/admin/api/books';
+            const method = editMode ? 'PUT' : 'POST';
+            fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data), credentials: 'include' })
+                .then(r => r.json())
+                .then(() => { showSuccess('Thành Công', editMode ? 'Đã cập nhật sách' : 'Đã thêm sách mới'); closeModal(); loadBooks(); })
+                .catch(() => showError('Lỗi', 'Không thể lưu sách'));
+        };
+        function deleteBook(id) {
+            if (!confirm('Bạn có chắc muốn xóa sách này?')) return;
+            fetch(`/admin/api/books/${id}`, { method: 'DELETE', credentials: 'include' })
+                .then(() => { showSuccess('Thành Công', 'Đã xóa sách'); loadBooks(); })
+                .catch(() => showError('Lỗi', 'Không thể xóa sách'));
+        }
+        loadBooks();
+    </script>
+</body>
+
+</html>

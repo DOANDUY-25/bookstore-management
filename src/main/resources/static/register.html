@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký - Bookshop Green</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/index.html" class="navbar-brand">Bookshop Green</a>
+            <ul class="nav-menu">
+                <li><a href="/index.html" class="nav-link">Trang Chủ</a></li>
+                <li class="dropdown">
+                    <a href="/books.html" class="nav-link dropdown-toggle">Sách</a>
+                    <div class="dropdown-menu" id="categoryMenu">
+                        <a href="/books.html" class="dropdown-item">Tất Cả Sách</a>
+                        <!-- Categories will be loaded here -->
+                    </div>
+                </li>
+                <li><a href="/cart.html" class="nav-link">Giỏ Hàng</a></li>
+                <li id="authSection" class="auth-section">
+                    <!-- Auth content will be loaded here by JavaScript -->
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="content">
+        <div class="container">
+            <div class="register-card">
+                <div class="card-header">
+                    <h2>✍Đăng Ký Tài Khoản</h2>
+                </div>
+                <div class="card-body">
+                    <div id="errorMessage" class="alert alert-danger" style="display:none;"></div>
+
+                    <form action="/auth/register" method="post">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="username" class="form-label">Tên đăng nhập *</label>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email" class="form-label">Email *</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="password" class="form-label">Mật khẩu *</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="fullName" class="form-label">Họ và tên *</label>
+                                <input type="text" class="form-control" id="fullName" name="fullName" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phoneNumber" class="form-label">Số điện thoại</label>
+                            <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="address" class="form-label">Địa chỉ</label>
+                            <textarea class="form-control" id="address" name="address"></textarea>
+                        </div>
+
+                        <div class="form-check">
+                            <input type="checkbox" id="terms" required>
+                            <label for="terms">Tôi đồng ý với điều khoản sử dụng</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">✍Đăng Ký</button>
+                    </form>
+
+                    <div class="divider"></div>
+
+                    <div class="text-center">
+                        <p>Đã có tài khoản? <a href="/login.html" class="link">Đăng nhập ngay</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <p>&copy; 2025 Bookshop Green. All rights reserved.</p>
+        </div>
+    </footer>
+    <script src="/js/main.js"></script>
+    <script src="/js/auth.js?v=2"></script>
+    <script src="/js/notification.js"></script>
+    <script>
+        // Check for error parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('error')) {
+            const errorMsg = decodeURIComponent(urlParams.get('error'));
+            document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('errorMessage').textContent = errorMsg;
+            setTimeout(() => {
+                showError('Lỗi Đăng Ký', errorMsg);
+            }, 300);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông Tin Cá Nhân - Bookshop Green</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/index.html" class="navbar-brand">Bookshop Green</a>
+            <ul class="nav-menu">
+                <li><a href="/index.html" class="nav-link">Trang Chủ</a></li>
+                <li class="dropdown">
+                    <a href="/books.html" class="nav-link dropdown-toggle">Sách</a>
+                    <div class="dropdown-menu" id="categoryMenu">
+                        <a href="/books.html" class="dropdown-item">Tất Cả Sách</a>
+                    </div>
+                </li>
+                <li><a href="/cart.html" class="nav-link">Giỏ Hàng</a></li>
+                <li id="authSection" class="auth-section"></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="content">
+        <div class="container">
+            <h1 class="section-title">Thông Tin Cá Nhân</h1>
+
+            <div class="login-card">
+                <div class="card-body">
+                    <div id="loadingMessage" class="alert alert-info">Đang tải thông tin...</div>
+
+                    <form id="profileForm" style="display: none;">
+                        <div class="form-group">
+                            <label for="userName" class="form-label">Tên đăng nhập</label>
+                            <input type="text" class="form-control" id="userName" disabled>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fullName" class="form-label">Họ và tên</label>
+                            <input type="text" class="form-control" id="fullName" name="fullName">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone" class="form-label">Số điện thoại</label>
+                            <input type="tel" class="form-control" id="phone" name="phone">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="address" class="form-label">Địa chỉ</label>
+                            <textarea class="form-control" id="address" name="address" rows="3"></textarea>
+                        </div>
+
+                        <div style="display: flex; gap: 1rem;">
+                            <button type="submit" class="btn btn-primary">Lưu Thay Đổi</button>
+                            <button type="button" onclick="cancelEdit()" class="btn btn-outline">Hủy</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <p>&copy; 2025 Bookshop Green. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/auth.js?v=2"></script>
+    <script src="/js/notification.js"></script>
+    <script>
+        let originalData = {};
+
+        // Load user profile
+        function loadProfile() {
+            fetch('/api/user/profile', {
+                credentials: 'include'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Not authenticated');
+                    }
+                    return response.json();
+                })
+                .then(user => {
+                    originalData = { ...user };
+                    displayProfile(user);
+                })
+                .catch(error => {
+                    console.error('Error loading profile:', error);
+                    document.getElementById('loadingMessage').innerHTML = `
+                        <div class="alert alert-danger">
+                            Không thể tải thông tin. Vui lòng <a href="/login.html">đăng nhập</a>.
+                        </div>
+                    `;
+                });
+        }
+
+        function displayProfile(user) {
+            document.getElementById('loadingMessage').style.display = 'none';
+            document.getElementById('profileForm').style.display = 'block';
+
+            document.getElementById('userName').value = user.userName || '';
+            document.getElementById('fullName').value = user.fullName || '';
+            document.getElementById('email').value = user.email || '';
+            document.getElementById('phone').value = user.phone || '';
+            document.getElementById('address').value = user.address || '';
+        }
+
+        function cancelEdit() {
+            displayProfile(originalData);
+            showInfo('Đã Hủy', 'Các thay đổi đã được hủy bỏ.');
+        }
+
+        // Handle form submission
+        document.getElementById('profileForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const updateData = {
+                fullName: document.getElementById('fullName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                address: document.getElementById('address').value
+            };
+
+            fetch('/api/user/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updateData),
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        originalData = { ...data.user };
+                        showSuccess('Cập Nhật Thành Công!', 'Thông tin cá nhân đã được cập nhật.');
+                    } else {
+                        showError('Lỗi', data.message || 'Không thể cập nhật thông tin.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError('Lỗi', 'Không thể cập nhật thông tin. Vui lòng thử lại.');
+                });
+        });
+
+        // Load profile on page load
+        loadProfile();
+    </script>
+</body>
+
+</html>

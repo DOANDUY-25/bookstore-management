@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Sách - Bookshop Green</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .book-detail {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .book-detail-image img {
+            width: 100%;
+            border-radius: 12px;
+        }
+
+        .book-detail-info h1 {
+            color: #2d6a4f;
+            margin-bottom: 1rem;
+        }
+
+        .book-meta {
+            color: #6c757d;
+            margin-bottom: 1.5rem;
+        }
+
+        .book-meta p {
+            margin-bottom: 0.5rem;
+        }
+
+        .book-detail-price {
+            color: #2d6a4f;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 1.5rem 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-left: 1rem;
+        }
+
+        .badge-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .badge-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .book-detail {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/index.html" class="navbar-brand">Bookshop Green</a>
+            <ul class="nav-menu">
+                <li><a href="/index.html" class="nav-link">Trang Chủ</a></li>
+                <li class="dropdown">
+                    <a href="/books.html" class="nav-link dropdown-toggle">Sách</a>
+                    <div class="dropdown-menu" id="categoryMenu">
+                        <a href="/books.html" class="dropdown-item">Tất Cả Sách</a>
+                        <!-- Categories will be loaded here -->
+                    </div>
+                </li>
+                <li><a href="/cart.html" class="nav-link">Giỏ Hàng</a></li>
+                <li id="authSection" class="auth-section">
+                    <!-- Auth content will be loaded here by JavaScript -->
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="content">
+        <div class="container">
+            <div id="bookDetail">
+                <!-- Book detail will be loaded here -->
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <p>&copy; 2025 Bookshop Green. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/auth.js?v=2"></script>
+    <script src="/js/notification.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const bookId = urlParams.get('id');
+
+        if (!bookId) {
+            window.location.href = '/books.html';
+        }
+
+        // Handle add to cart with authentication check
+        function handleAddToCart(event, bookId, maxStock) {
+            event.preventDefault();
+
+            // Check if user is logged in
+            fetch('/api/user/current', {
+                credentials: 'include'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        // User not logged in
+                        showError('Vui Lòng Đăng Nhập', 'Bạn cần đăng nhập để thêm sách vào giỏ hàng.');
+                        setTimeout(() => {
+                            window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.href);
+                        }, 2000);
+                        return null;
+                    }
+                    return response.json();
+                })
+                .then(user => {
+                    if (!user) return; // User not logged in, already handled
+
+                    // User is logged in, proceed with adding to cart
+                    const quantity = document.getElementById('quantity').value;
+
+                    if (quantity < 1 || quantity > maxStock) {
+                        showError('Số Lượng Không Hợp Lệ', `Vui lòng chọn số lượng từ 1 đến ${maxStock}`);
+                        return;
+                    }
+
+                    // Use AJAX to add to cart without page reload
+                    const formData = new URLSearchParams();
+                    formData.append('bookId', bookId);
+                    formData.append('quantity', quantity);
+
+                    fetch('/cart/add', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: formData,
+                        credentials: 'include'
+                    })
+                        .then(response => {
+                            if (response.ok || response.redirected) {
+                                // Success - show notification and stay on page
+                                showSuccess('Thêm Vào Giỏ Hàng Thành Công!', 'Sách đã được thêm vào giỏ hàng của bạn.');
+                                // Reset quantity to 1
+                                document.getElementById('quantity').value = 1;
+                            } else {
+                                showError('Lỗi', 'Không thể thêm sách vào giỏ hàng. Vui lòng thử lại.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showError('Lỗi', 'Không thể thêm sách vào giỏ hàng. Vui lòng thử lại.');
+                        });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError('Lỗi', 'Không thể thêm sách vào giỏ hàng. Vui lòng thử lại.');
+                });
+
+            return false;
+        }
+
+        fetch(`/api/books/${bookId}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Book not found');
+                return response.json();
+            })
+            .then(book => {
+                const detail = `
+                    <div class="book-detail">
+                        <div class="book-detail-image">
+                            <img src="${book.coverImageURL || 'https://via.placeholder.com/400x600?text=No+Image'}" alt="${book.title}">
+                        </div>
+                        <div class="book-detail-info">
+                            <h1>${book.title}</h1>
+                            <div class="book-meta">
+                                <p><strong>Tác giả:</strong> ${book.author || 'N/A'}</p>
+                                <p><strong>Thể loại:</strong> ${book.category || 'N/A'}</p>
+                                <p>⭐ <strong>Đánh giá:</strong> ${book.rating ? book.rating + '/5' : 'Chưa có đánh giá'}</p>
+                                <p><strong>Số lượng:</strong> ${book.stock > 0 ? book.stock + ' cuốn' : 'Hết hàng'}</p>
+                            </div>
+                            <hr style="border: 1px solid #e9ecef; margin: 1.5rem 0;">
+                            <div>
+                                <h3 style="color: #2d6a4f; margin-bottom: 1rem;">Mô tả</h3>
+                                <p>${book.description || 'Chưa có mô tả'}</p>
+                            </div>
+                            <hr style="border: 1px solid #e9ecef; margin: 1.5rem 0;">
+                            <div>
+                                <span class="book-detail-price">${book.price.toLocaleString('vi-VN')} ₫</span>
+                                <span class="badge ${book.stock > 0 ? 'badge-success' : 'badge-danger'}">
+                                    ${book.stock > 0 ? 'Còn hàng' : 'Hết hàng'}
+                                </span>
+                            </div>
+                            ${book.stock > 0 ? `
+                                <form id="addToCartForm" onsubmit="return handleAddToCart(event, ${book.bookId}, ${book.stock})" style="margin-top: 2rem;">
+                                    <div class="form-group">
+                                        <label for="quantity" class="form-label">Số lượng:</label>
+                                        <input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1" max="${book.stock}" style="width: 150px;">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Thêm Vào Giỏ Hàng</button>
+                                    <a href="/books.html" class="btn btn-outline">⬅Quay Lại</a>
+                                </form>
+                            ` : `
+                                <div class="alert alert-warning" style="margin-top: 2rem;">
+                                    Sản phẩm hiện đang hết hàng. Vui lòng quay lại sau!
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                `;
+                document.getElementById('bookDetail').innerHTML = detail;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('bookDetail').innerHTML = '<p class="alert alert-danger">Không thể tải thông tin sách</p>';
+            });
+    </script>
+</body>
+
+</html>

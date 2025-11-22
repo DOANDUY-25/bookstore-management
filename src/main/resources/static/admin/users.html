@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Người Dùng - Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="admin-style.css">
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center
+        }
+
+        .modal.show {
+            display: flex
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%
+        }
+
+        .form-group {
+            margin-bottom: 1rem
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <h2>Admin Panel</h2>
+            <ul class="admin-menu">
+                <li><a href="/admin/dashboard.html">Dashboard</a></li>
+                <li><a href="/admin/books.html">Quản Lý Sách</a></li>
+                <li><a href="/admin/orders.html">Quản Lý Đơn Hàng</a></li>
+                <li><a href="/admin/gift-orders.html">Quản Lý Đơn Quà Tặng</a></li>
+                <li><a href="/admin/gift-packages.html">Quản Lý Gói Quà</a></li>
+                <li><a href="/admin/users.html" class="active">Quản Lý Người Dùng</a></li>
+                <li><a href="/admin/memberships.html">Quản Lý Thẻ Thành Viên</a></li>
+                <li><a href="/index.html">Về Trang Chủ</a></li>
+            </ul>
+        </aside>
+        <main class="admin-content">
+            <h1 style="color:#2d6a4f;margin-bottom:1.5rem">Quản Lý Người Dùng</h1>
+            <div style="margin-bottom:1rem">
+                <input type="text" id="searchInput" placeholder="🔍 Tìm kiếm theo tên, email, số điện thoại..."
+                    style="width:100%;max-width:500px;padding:0.75rem;border:1px solid #ddd;border-radius:4px;font-size:14px"
+                    oninput="filterUsers()">
+            </div>
+            <div class="admin-section">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên Đăng Nhập</th>
+                            <th>Họ Tên</th>
+                            <th>Email</th>
+                            <th>Số Điện Thoại</th>
+                            <th>Vai Trò</th>
+                            <th>Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTable">
+                        <tr>
+                            <td colspan="7" style="text-align:center">Đang tải...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <div id="roleModal" class="modal">
+        <div class="modal-content">
+            <h2>Sửa Vai Trò</h2>
+            <div class="form-group">
+                <label>Vai Trò</label>
+                <select id="roleSelect">
+                    <option value="USER">USER</option>
+                    <option value="ADMIN">ADMIN</option>
+                </select>
+            </div>
+            <div style="display:flex;gap:1rem;margin-top:1.5rem">
+                <button class="btn btn-primary" onclick="saveRole()">Lưu</button>
+                <button class="btn btn-outline" onclick="closeModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/notification.js"></script>
+    <script>
+        let allUsers = [], editingUserId = null;
+        fetch('/admin/api/users', { credentials: 'include' })
+            .then(r => r.json())
+            .then(users => { allUsers = users; displayUsers(users); })
+            .catch(() => document.getElementById('usersTable').innerHTML = '<tr><td colspan="7" style="text-align:center">Không thể tải dữ liệu</td></tr>');
+        function displayUsers(users) {
+            document.getElementById('usersTable').innerHTML = users.length ? users.map(u => `
+                <tr>
+                    <td>${u.userId}</td>
+                    <td>${u.userName}</td>
+                    <td>${u.fullName || 'N/A'}</td>
+                    <td>${u.email || 'N/A'}</td>
+                    <td>${u.phone || 'N/A'}</td>
+                    <td><span style="padding:4px 8px;background:${u.role === 'ADMIN' ? '#dc3545' : '#28a745'};color:#fff;border-radius:4px;font-size:12px">${u.role}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="editRole(${u.userId},'${u.role}')">Sửa Vai Trò</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteUser(${u.userId})">Xóa</button>
+                    </td>
+                </tr>
+            `).join('') : '<tr><td colspan="7" style="text-align:center">Không tìm thấy người dùng</td></tr>';
+        }
+        function filterUsers() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allUsers.filter(u =>
+                (u.userName || '').toLowerCase().includes(q) ||
+                (u.fullName || '').toLowerCase().includes(q) ||
+                (u.email || '').toLowerCase().includes(q) ||
+                (u.phoneNumber || '').includes(q) ||
+                (u.userId + '').includes(q)
+            );
+            displayUsers(filtered);
+        }
+        function editRole(userId, currentRole) {
+            editingUserId = userId;
+            document.getElementById('roleSelect').value = currentRole;
+            document.getElementById('roleModal').classList.add('show');
+        }
+        function closeModal() {
+            document.getElementById('roleModal').classList.remove('show');
+            editingUserId = null;
+        }
+        function saveRole() {
+            const role = document.getElementById('roleSelect').value;
+            fetch(`/admin/api/users/${editingUserId}/role`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ role }),
+                credentials: 'include'
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        showSuccess('Thành Công', 'Đã cập nhật vai trò');
+                        closeModal();
+                        fetch('/admin/api/users', { credentials: 'include' })
+                            .then(r => r.json())
+                            .then(users => { allUsers = users; displayUsers(users); });
+                    } else {
+                        showError('Lỗi', data.error || 'Không thể cập nhật vai trò');
+                    }
+                })
+                .catch(() => showError('Lỗi', 'Không thể cập nhật vai trò'));
+        }
+        function deleteUser(userId) {
+            if (!confirm('Bạn có chắc muốn xóa người dùng này?')) return;
+            fetch(`/admin/api/users/${userId}`, { method: 'DELETE', credentials: 'include' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        showSuccess('Thành Công', 'Đã xóa người dùng');
+                        fetch('/admin/api/users', { credentials: 'include' })
+                            .then(r => r.json())
+                            .then(users => { allUsers = users; displayUsers(users); });
+                    } else {
+                        showError('Lỗi', data.error || 'Không thể xóa người dùng');
+                    }
+                })
+                .catch(() => showError('Lỗi', 'Không thể xóa người dùng'));
+        }
+    </script>
+</body>
+
+</html>

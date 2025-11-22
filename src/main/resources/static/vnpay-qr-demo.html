@@ -1,0 +1,127 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>VNPay QR Demo</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+</head>
+
+<body>
+    <div class="container" style="padding: 2rem;">
+        <h1>Demo Thanh Toán VNPay QR</h1>
+        <p>Click nút bên dưới để xem demo thanh toán VNPay với QR code</p>
+        <button onclick="showDemo()" class="btn btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem;">
+            Test VNPay QR Payment
+        </button>
+    </div>
+
+    <!-- VNPay QR Modal -->
+    <div id="vnpayQRModal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1001;">
+        <div style="max-width: 500px; margin: 2rem auto; background: white; border-radius: 12px;">
+            <div
+                style="background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%); padding: 1.5rem; border-radius: 12px 12px 0 0; text-align: center;">
+                <h2 style="color: white; margin: 0;">VNPAY</h2>
+                <p style="color: white; margin: 0.5rem 0 0 0;">Cổng thanh toán điện tử</p>
+            </div>
+            <div style="padding: 2rem;">
+                <h3 style="color: #0066cc; text-align: center; margin-bottom: 1rem;">Quét mã QR để thanh toán</h3>
+
+                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: #6c757d;">Số đơn thanh toán:</span>
+                        <strong id="qrOrderId">123</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: #6c757d;">Giá trị đơn hàng:</span>
+                        <strong id="qrAmount" style="color: #0066cc; font-size: 1.2rem;">250,000 VND</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: #6c757d;">Phí giao dịch:</span>
+                        <strong>0 ₫</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: #6c757d;">Mã giao dịch:</span>
+                        <strong id="qrTransId"></strong>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <div id="qrcode"
+                        style="display: inline-block; padding: 1rem; background: white; border: 2px solid #0066cc; border-radius: 8px;">
+                    </div>
+                    <p style="margin-top: 1rem; color: #6c757d; font-size: 0.9rem;">
+                        Sử dụng ứng dụng ngân hàng để quét mã QR
+                    </p>
+                </div>
+
+                <div
+                    style="background: #fff3cd; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #ffc107;">
+                    <p style="margin: 0; font-size: 0.9rem; color: #856404;">
+                        <strong>Môi trường Test:</strong> Đây là QR code giả lập. Trong thực tế, đây sẽ là QR code
+                        thật từ VNPay.
+                    </p>
+                </div>
+
+                <button onclick="confirmPayment()"
+                    style="width: 100%; padding: 1rem; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-bottom: 0.5rem;">
+                    Tôi Đã Thanh Toán
+                </button>
+                <button onclick="closeModal()"
+                    style="width: 100%; padding: 1rem; background: #6c757d; color: white; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer;">
+                    Hủy Thanh Toán
+                </button>
+
+                <div style="text-align: center; margin-top: 1rem;">
+                    <p style="font-size: 0.85rem; color: #6c757d;">
+                        1900.5555.77 | hotro@vnpay.vn
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showDemo() {
+            // Generate fake transaction ID
+            const transId = 'VNP' + Date.now();
+            document.getElementById('qrTransId').textContent = transId;
+
+            // Generate QR Code with fake data
+            const qrData = `VNPay|${transId}|123|250000|https://vnshop.vn`;
+            document.getElementById('qrcode').innerHTML = '';
+            new QRCode(document.getElementById('qrcode'), {
+                text: qrData,
+                width: 200,
+                height: 200,
+                colorDark: "#000000",
+                colorLight: "#ffffff"
+            });
+
+            // Show modal
+            document.getElementById('vnpayQRModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('vnpayQRModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function confirmPayment() {
+            closeModal();
+            alert('Thanh toán thành công!\n\nĐây là demo fake. Trong thực tế, hệ thống sẽ gọi API để xác nhận thanh toán.');
+        }
+
+        // Close when click outside
+        document.getElementById('vnpayQRModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+
+</html>

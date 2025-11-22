@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đơn Quà Tặng - Bookshop Green</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/index.html" class="navbar-brand">Bookshop Green</a>
+            <ul class="nav-menu">
+                <li><a href="/index.html" class="nav-link">Trang Chủ</a></li>
+                <li><a href="/books.html" class="nav-link">Sách</a></li>
+                <li><a href="/gift-packages.html" class="nav-link">Mua Tặng Quà</a></li>
+                <li><a href="/cart.html" class="nav-link">Giỏ Hàng</a></li>
+            </ul>
+            <div id="authSection" class="auth-section"></div>
+        </div>
+    </nav>
+
+    <main class="content">
+        <div class="container">
+            <h1 class="section-title">Đơn Quà Tặng Của Tôi</h1>
+
+            <div id="giftOrdersContainer">
+                <p style="text-align: center;">Đang tải...</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <p>&copy; 2025 Bookshop Green. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
+        <div
+            style="max-width: 500px; margin: 3rem auto; background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+            <h2 style="color: #2d6a4f; margin-bottom: 1.5rem; text-align: center;">Chọn Phương Thức Thanh Toán</h2>
+
+            <div
+                style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center;">
+                <p style="margin: 0; font-size: 0.9rem; color: #6c757d;">Đơn quà tặng #<span id="modalOrderId"></span>
+                </p>
+                <p style="margin: 0.5rem 0 0 0; font-size: 1.5rem; font-weight: bold; color: #2d6a4f;"
+                    id="modalOrderAmount">0 ₫</p>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #2d6a4f;">
+                    Phương thức thanh toán <span style="color: red;">*</span>
+                </label>
+                <select id="paymentMethod"
+                    style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
+                    <option value="">-- Chọn phương thức --</option>
+                    <option value="COD">Thanh toán khi nhận hàng (COD)</option>
+                    <option value="VNPAY">Thanh toán qua VNPay</option>
+                </select>
+            </div>
+
+            <div id="vnpayInfo"
+                style="display: none; background: #e7f3ff; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #007bff;">
+                <p style="margin: 0; font-size: 0.9rem; color: #004085;">
+                    <strong>Lưu ý:</strong> Bạn sẽ được chuyển đến trang thanh toán VNPay để hoàn tất giao dịch.
+                </p>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button onclick="processPayment()" class="btn btn-primary" style="flex: 1;">
+                    Xác Nhận Thanh Toán
+                </button>
+                <button onclick="closePaymentModal()" class="btn btn-outline" style="flex: 1;">
+                    Hủy
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VNPay QR Code Modal -->
+    <div id="vnpayQRModal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1002; overflow-y: auto;">
+        <div
+            style="max-width: 500px; margin: 2rem auto; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+            <!-- VNPay Header -->
+            <div
+                style="background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%); padding: 1.5rem; border-radius: 12px 12px 0 0; text-align: center;">
+                <h2 style="color: white; margin: 0; font-size: 1.8rem; font-weight: bold;">VNPAY</h2>
+                <p style="color: white; margin: 0.5rem 0 0 0; font-size: 1rem;">Cổng thanh toán điện tử</p>
+            </div>
+
+            <!-- VNPay Content -->
+            <div style="padding: 2rem;">
+                <h3 style="color: #0066cc; margin-bottom: 1rem; text-align: center;">Quét mã QR để thanh toán</h3>
+
+                <!-- Order Info -->
+                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: #6c757d;">Số đơn thanh toán:</span>
+                        <strong id="vnpayQROrderId"></strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: #6c757d;">Giá trị đơn hàng:</span>
+                        <strong style="color: #0066cc; font-size: 1.2rem;" id="vnpayQRAmount"></strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: #6c757d;">Phí giao dịch:</span>
+                        <strong>0 ₫</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: #6c757d;">Mã giao dịch:</span>
+                        <strong id="vnpayQRRefCode"></strong>
+                    </div>
+                </div>
+
+                <!-- QR Code -->
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <div
+                        style="background: white; padding: 1.5rem; border-radius: 8px; border: 2px solid #0066cc; display: inline-block;">
+                        <div id="vnpayQRCode" style="width: 200px; height: 200px; background: white;"></div>
+                    </div>
+                    <p style="margin-top: 1rem; color: #6c757d; font-size: 0.9rem;">
+                        Sử dụng ứng dụng ngân hàng để quét mã QR
+                    </p>
+                </div>
+
+                <!-- Warning -->
+                <div
+                    style="background: #fff3cd; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #ffc107;">
+                    <p style="margin: 0; font-size: 0.9rem; color: #856404;">
+                        <strong>Môi trường Test:</strong> Đây là QR code giả lập. Trong thực tế, đây sẽ là QR code
+                        thật từ VNPay.
+                    </p>
+                </div>
+
+                <!-- Buttons -->
+                <div style="display: flex; gap: 1rem; flex-direction: column;">
+                    <button onclick="confirmVNPayQRPayment()"
+                        style="width: 100%; padding: 1rem; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer;">
+                        Tôi Đã Thanh Toán
+                    </button>
+                    <button onclick="closeVNPayQRModal()"
+                        style="width: 100%; padding: 1rem; background: #6c757d; color: white; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer;">
+                        Hủy Thanh Toán
+                    </button>
+                </div>
+
+                <div style="text-align: center; margin-top: 1rem;">
+                    <p style="font-size: 0.85rem; color: #6c757d;">
+                        1900.5555.77 | hotro@vnpay.vn
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="/js/auth.js?v=2"></script>
+    <script src="/js/notification.js"></script>
+    <script src="/js/vnpay-qr.js"></script>
+    <script>
+        // Load gift orders
+        document.addEventListener('DOMContentLoaded', function () {
+            loadGiftOrders();
+        });
+
+        function loadGiftOrders() {
+            fetch('/api/gift-orders/my-orders', {
+                credentials: 'include'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load gift orders');
+                    }
+                    return response.json();
+                })
+                .then(orders => {
+                    displayGiftOrders(orders);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('giftOrdersContainer').innerHTML = `
+                    <div class="alert alert-info" style="text-align: center;">
+                        <p>Bạn chưa có đơn quà tặng nào.</p>
+                        <a href="/gift-packages.html" class="btn btn-primary" style="margin-top: 10px;">Tạo Đơn Quà Tặng</a>
+                    </div>
+                `;
+                });
+        }
+
+        function displayGiftOrders(orders) {
+            const container = document.getElementById('giftOrdersContainer');
+
+            if (!orders || orders.length === 0) {
+                container.innerHTML = `
+                    <div class="alert alert-info" style="text-align: center;">
+                        <p>Bạn chưa có đơn quà tặng nào.</p>
+                        <a href="/gift-packages.html" class="btn btn-primary" style="margin-top: 10px;">Tạo Đơn Quà Tặng</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = orders.map(order => `
+                <div class="order-card" style="background: white; padding: 20px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <div>
+                            <h3 style="margin: 0; color: #2c5f2d;">Đơn quà #${order.orderGiftId}</h3>
+                            <p style="margin: 5px 0; color: #666;">${new Date(order.createAt).toLocaleDateString('vi-VN')}</p>
+                        </div>
+                        <div>
+                            <span class="status-badge status-${order.status.toLowerCase()}" style="padding: 5px 15px; border-radius: 20px; font-weight: bold;">
+                                ${getStatusText(order.status)}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div style="border-top: 1px solid #eee; padding-top: 15px; margin-top: 15px;">
+                        <p><strong>Người nhận:</strong> ${order.recipientName}</p>
+                        <p><strong>SĐT:</strong> ${order.recipientPhone}</p>
+                        <p><strong>Địa chỉ:</strong> ${order.recipientAddress}</p>
+                        ${order.message ? `<p><strong>Lời nhắn:</strong> ${order.message}</p>` : ''}
+                        <p><strong>Tổng tiền:</strong> <span style="color: #2c5f2d; font-size: 18px; font-weight: bold;">${order.totalAmount.toLocaleString('vi-VN')} ₫</span></p>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button onclick="viewGiftOrderDetail(${order.orderGiftId})" class="btn btn-primary">Xem Chi Tiết</button>
+                        ${order.status === 'PENDING' ? `
+                            <button onclick="payGiftOrder(${order.orderGiftId})" class="btn btn-success">Thanh Toán</button>
+                            <button onclick="cancelGiftOrder(${order.orderGiftId})" class="btn btn-danger">Hủy Đơn</button>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'PENDING': 'Chờ thanh toán',
+                'PAID': 'Đã thanh toán',
+                'PROCESSING': 'Đang xử lý',
+                'SHIPPING': 'Đang giao',
+                'DELIVERED': 'Đã giao',
+                'CANCELLED': 'Đã hủy'
+            };
+            return statusMap[status] || status;
+        }
+
+        function viewGiftOrderDetail(orderId) {
+            window.location.href = `/gift-order-detail.html?id=${orderId}`;
+        }
+
+        function payGiftOrder(orderId) {
+            // Get order amount first
+            fetch(`/api/gift-orders/${orderId}`, {
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(order => {
+                    showPaymentModal(order.orderGiftId, order.totalAmount);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError('Lỗi', 'Không thể tải thông tin đơn hàng');
+                });
+        }
+
+        // Payment Modal Functions
+        let currentOrderId = null;
+        let currentOrderAmount = 0;
+
+        function showPaymentModal(orderId, amount) {
+            currentOrderId = orderId;
+            currentOrderAmount = amount;
+
+            document.getElementById('modalOrderId').textContent = orderId;
+            document.getElementById('modalOrderAmount').textContent = amount.toLocaleString('vi-VN') + ' ₫';
+            document.getElementById('paymentMethod').value = '';
+            document.getElementById('vnpayInfo').style.display = 'none';
+            document.getElementById('paymentModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            currentOrderId = null;
+            currentOrderAmount = 0;
+        }
+
+        // Show VNPay info when selected
+        document.addEventListener('DOMContentLoaded', function () {
+            const paymentMethodSelect = document.getElementById('paymentMethod');
+            if (paymentMethodSelect) {
+                paymentMethodSelect.addEventListener('change', function () {
+                    const vnpayInfo = document.getElementById('vnpayInfo');
+                    if (this.value === 'VNPAY') {
+                        vnpayInfo.style.display = 'block';
+                    } else {
+                        vnpayInfo.style.display = 'none';
+                    }
+                });
+            }
+        });
+
+        function processPayment() {
+            const paymentMethod = document.getElementById('paymentMethod').value;
+
+            if (!paymentMethod) {
+                showError('Lỗi', 'Vui lòng chọn phương thức thanh toán');
+                return;
+            }
+
+            console.log('processPayment:', { paymentMethod, currentOrderId, currentOrderAmount });
+
+            if (paymentMethod === 'COD') {
+                // COD Payment
+                processCODPayment();
+            } else if (paymentMethod === 'VNPAY') {
+                // VNPay Payment with QR Code
+                const orderId = currentOrderId;
+                const amount = currentOrderAmount;
+                closePaymentModal();
+                showVNPayQRModal(orderId, amount, true); // true = gift order
+            }
+        }
+
+        function processCODPayment() {
+            fetch(`/payment/gift-order/cod/${currentOrderId}`, {
+                method: 'POST',
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        closePaymentModal();
+                        showSuccess('Đặt Hàng Thành Công!', 'Đơn quà tặng sẽ được thanh toán khi nhận hàng.');
+                        setTimeout(() => {
+                            loadGiftOrders();
+                        }, 2000);
+                    } else {
+                        showError('Lỗi', data.message || 'Không thể xử lý thanh toán.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError('Lỗi', 'Không thể xử lý thanh toán. Vui lòng thử lại.');
+                });
+        }
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function (e) {
+            const paymentModal = document.getElementById('paymentModal');
+            const vnpayQRModal = document.getElementById('vnpayQRModal');
+
+            if (e.target === paymentModal) {
+                closePaymentModal();
+            }
+            if (e.target === vnpayQRModal) {
+                closeVNPayQRModal();
+            }
+        });
+
+        function cancelGiftOrder(orderId) {
+            if (confirm('Bạn có chắc muốn hủy đơn quà tặng này?')) {
+                fetch(`/api/gift-orders/${orderId}/cancel`, {
+                    method: 'POST',
+                    credentials: 'include'
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Đã hủy đơn quà tặng thành công!');
+                            loadGiftOrders(); // Reload list
+                        } else {
+                            alert('Lỗi: ' + (data.message || 'Không thể hủy đơn'));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Có lỗi xảy ra khi hủy đơn');
+                    });
+            }
+        }
+    </script>
+
+    <style>
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-paid {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-processing {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-shipping {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-delivered {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</body>
+
+</html>

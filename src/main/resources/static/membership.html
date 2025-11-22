@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký Thẻ Thành Viên - Bookshop Green</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/index.html" class="navbar-brand">Bookshop Green</a>
+
+            <ul class="nav-menu">
+                <li><a href="/index.html" class="nav-link">Trang Chủ</a></li>
+                <li class="dropdown">
+                    <a href="/books.html" class="nav-link dropdown-toggle">Sách</a>
+                    <div class="dropdown-menu" id="categoryMenu">
+                        <a href="/books.html" class="dropdown-item">Tất Cả Sách</a>
+                    </div>
+                </li>
+                <li><a href="/cart.html" class="nav-link">Giỏ Hàng</a></li>
+            </ul>
+
+            <form id="searchForm" class="header-search">
+                <input type="text" id="searchQuery" placeholder="Tìm kiếm sách..." />
+                <button type="submit">Tìm kiếm</button>
+            </form>
+
+            <div id="authSection" class="auth-section"></div>
+        </div>
+    </nav>
+
+    <main class="content">
+        <div class="container">
+            <h1 class="section-title">Đăng Ký Thẻ Thành Viên</h1>
+
+            <!-- Current Membership Status -->
+            <div id="currentMembershipSection" style="display: none; margin-bottom: 2rem;">
+                <div
+                    style="background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%); color: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                    <h2 style="margin: 0 0 1rem 0; font-size: 1.5rem;">✨ Thẻ Thành Viên Hiện Tại</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <div>
+                            <p style="margin: 0; opacity: 0.9; font-size: 0.9rem;">Loại thẻ</p>
+                            <p style="margin: 0.25rem 0 0 0; font-size: 1.3rem; font-weight: bold;" id="currentType">
+                            </p>
+                        </div>
+                        <div>
+                            <p style="margin: 0; opacity: 0.9; font-size: 0.9rem;">Giảm giá</p>
+                            <p style="margin: 0.25rem 0 0 0; font-size: 1.3rem; font-weight: bold;"
+                                id="currentDiscount"></p>
+                        </div>
+                        <div>
+                            <p style="margin: 0; opacity: 0.9; font-size: 0.9rem;">Ngày hết hạn</p>
+                            <p style="margin: 0.25rem 0 0 0; font-size: 1.3rem; font-weight: bold;" id="currentExpiry">
+                            </p>
+                        </div>
+                        <div>
+                            <p style="margin: 0; opacity: 0.9; font-size: 0.9rem;">Trạng thái</p>
+                            <p style="margin: 0.25rem 0 0 0; font-size: 1.3rem; font-weight: bold;" id="currentStatus">
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Membership Plans -->
+            <div style="margin-bottom: 2rem;">
+                <h2 style="color: #2d6a4f; margin-bottom: 1.5rem; text-align: center;">Chọn Gói Thành Viên</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+
+                    <!-- Silver Plan -->
+                    <div class="membership-card" data-type="SILVER" data-discount="5">
+                        <div
+                            style="background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%); color: white; padding: 1.5rem; border-radius: 12px 12px 0 0; text-align: center;">
+                            <h3 style="margin: 0; font-size: 1.8rem;">🥈 SILVER</h3>
+                            <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; opacity: 0.9;">Thẻ Bạc</p>
+                        </div>
+                        <div
+                            style="background: white; padding: 1.5rem; border-radius: 0 0 12px 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <div style="text-align: center; margin-bottom: 1.5rem;">
+                                <p style="margin: 0; font-size: 2rem; font-weight: bold; color: #2d6a4f;">5%</p>
+                                <p style="margin: 0.25rem 0 0 0; color: #6c757d;">Giảm giá</p>
+                            </div>
+                            <ul style="list-style: none; padding: 0; margin: 0 0 1.5rem 0;">
+                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Giảm 5% mọi đơn hàng
+                                </li>
+                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Ưu tiên hỗ trợ</li>
+                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Tích điểm thưởng</li>
+                                <li style="padding: 0.5rem 0;">✓ Thông báo sách mới</li>
+                            </ul>
+                            <button onclick="selectPlan('SILVER', 5)" class="btn btn-primary" style="width: 100%;">Chọn
+                                Gói Này</button>
+                        </div>
+                    </div>
+
+                    <!-- Gold Plan -->
+                    <div class="membership-card" data-type="GOLD" data-discount="10">
+                        <div
+                            style="background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: white; padding: 1.5rem; border-radius: 12px 12px 0 0; text-align: center; position: relative;">
+                            <div
+                                style="position: absolute; top: -10px; right: 10px; background: #dc3545; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">
+                                PHỔ BIẾN</div>
+                            <h3 style="margin: 0; font-size: 1.8rem;">🥇 GOLD</h3>
+                            <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; opacity: 0.9;">Thẻ Vàng</p>
+                        </div>
+                        <div
+                            style="background: white; padding: 1.5rem; border-radius: 0 0 12px 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border: 2px solid #FFD700;">
+                            <div style="text-align: center; margin-bottom: 1.5rem;">
+                                <p style="margin: 0; font-size: 2rem; font-weight: bold; color: #2d6a4f;">10%</p>
+                                <p style="margin: 0.25rem 0 0 0; color: #6c757d;">Giảm giá</p>
+                            </div>
+                            <ul style="list-style: none; padding: 0; margin: 0 0 1.5rem 0;">
+                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Giảm 10% mọi đơn hàng
+                                </li>
+                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Ưu tiên hỗ trợ VIP
+                                </li>
+                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Tích điểm x2</li>
+                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Miễn phí vận chuyển
+                                </li>
+                                <li style="padding: 0.5rem 0;">✓ Quà tặng sinh nhật</li>
+                            </ul>
+                            <button onclick="selectPlan('GOLD', 10)" class="btn btn-primary"
+                                style="width: 100%; background: #FFD700; border-color: #FFD700;">Chọn Gói Này</button>
+                        </div>
+                    </div>
+
+                    <!-- Platinum Plan -->
+                    <div class="membership-card" data-type="PLATINUM" data-discount="15">
+                        <div
+                            style="background: linear-gradient(135deg, #E5E4E2 0%, #B9B9B9 100%); color: #333; padding: 1.5rem; border-radius: 12px 12px 0 0; text-align: center;">
+                            <h3 style="margin: 0; font-size: 1.8rem;">PLATINUM</h3>
+                            <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; opacity: 0.8;">Thẻ Bạch Kim</p>
+                        </div>
+                        <div
+                            style="background: white; padding: 1.5rem; border-radius: 0 0 12px 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <div style="text-align: center; margin-bottom: 1.5rem;">
+                                <p style="margin: 0; font-size: 2rem; font-weight: bold; color: #2d6a4f;">15%</p>
+                                <p style="margin: 0.25rem 0 0 0; color: #6c757d;">Giảm giá</p>
+                            </div>
+                            <ul style="list-style: none; padding: 0; margin: 0 0 1.5rem 0;">
+                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Giảm 15% mọi đơn hàng
+                                </li>
+                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Hỗ trợ 24/7</li>
+                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Tích điểm x3</li>
+                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Miễn phí vận chuyển
+                                </li>
+                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Ưu tiên sách mới</li>
+                                <li style="padding: 0.5rem 0;">✓ Sự kiện độc quyền</li>
+                            </ul>
+                            <button onclick="selectPlan('PLATINUM', 15)" class="btn btn-primary"
+                                style="width: 100%;">Chọn Gói Này</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registration Form -->
+            <div id="registrationForm"
+                style="display: none; max-width: 600px; margin: 0 auto; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <h2 style="color: #2d6a4f; margin-bottom: 1.5rem; text-align: center;">Thông Tin Đăng Ký</h2>
+
+                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                    <p style="margin: 0; font-weight: bold; color: #2d6a4f;">Gói đã chọn: <span
+                            id="selectedPlanName"></span></p>
+                    <p style="margin: 0.5rem 0 0 0; color: #6c757d;">Giảm giá: <span id="selectedDiscount"></span>%</p>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #2d6a4f;">
+                        Thời hạn <span style="color: red;">*</span>
+                    </label>
+                    <select id="months" onchange="updatePrice()"
+                        style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
+                        <option value="3">3 tháng</option>
+                        <option value="6">6 tháng (Tiết kiệm 10%)</option>
+                        <option value="12" selected>12 tháng (Tiết kiệm 20%)</option>
+                    </select>
+                    <p id="priceDisplay"
+                        style="margin-top: 0.5rem; font-weight: bold; color: #2d6a4f; font-size: 1.1rem;"></p>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #2d6a4f;">
+                        Phương thức thanh toán <span style="color: red;">*</span>
+                    </label>
+                    <select id="bankType"
+                        style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
+                        <option value="">-- Chọn phương thức --</option>
+                        <option value="VNPAY">VNPay</option>
+                        <option value="MOMO">MoMo</option>
+                        <option value="BANK_TRANSFER">Chuyển khoản ngân hàng</option>
+                    </select>
+                </div>
+
+                <div
+                    style="background: #fff3cd; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #ffc107;">
+                    <p style="margin: 0; font-size: 0.9rem; color: #856404;">
+                        <strong>Lưu ý:</strong> Thẻ thành viên sẽ được kích hoạt ngay sau khi thanh toán thành công.
+                    </p>
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button onclick="submitMembership()" class="btn btn-primary" style="flex: 1;">
+                        Đăng Ký Ngay
+                    </button>
+                    <button onclick="cancelRegistration()" class="btn btn-outline" style="flex: 1;">
+                        Hủy
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- VNPay QR Code Modal -->
+    <div id="vnpayQRModal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1002; overflow-y: auto;">
+        <div
+            style="max-width: 500px; margin: 2rem auto; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+            <!-- VNPay Header -->
+            <div
+                style="background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%); padding: 1.5rem; border-radius: 12px 12px 0 0; text-align: center;">
+                <h2 style="color: white; margin: 0; font-size: 1.8rem; font-weight: bold;">VNPAY</h2>
+                <p style="color: white; margin: 0.5rem 0 0 0; font-size: 1rem;">Cổng thanh toán điện tử</p>
+            </div>
+
+            <!-- VNPay Content -->
+            <div style="padding: 2rem;">
+                <h3 style="color: #0066cc; margin-bottom: 1rem; text-align: center;">Quét mã QR để thanh toán</h3>
+
+                <!-- Order Info -->
+                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: #6c757d;">Gói thành viên:</span>
+                        <strong id="vnpayQRMembershipType"></strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: #6c757d;">Giá trị thanh toán:</span>
+                        <strong style="color: #0066cc; font-size: 1.2rem;" id="vnpayQRAmount"></strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: #6c757d;">Phí giao dịch:</span>
+                        <strong>0 ₫</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: #6c757d;">Mã giao dịch:</span>
+                        <strong id="vnpayQRRefCode"></strong>
+                    </div>
+                </div>
+
+                <!-- QR Code -->
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <div
+                        style="background: white; padding: 1.5rem; border-radius: 8px; border: 2px solid #0066cc; display: inline-block;">
+                        <div id="vnpayQRCode" style="width: 200px; height: 200px; background: white;"></div>
+                    </div>
+                    <p style="margin-top: 1rem; color: #6c757d; font-size: 0.9rem;">
+                        Sử dụng ứng dụng ngân hàng để quét mã QR
+                    </p>
+                </div>
+
+                <!-- Warning -->
+                <div
+                    style="background: #fff3cd; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #ffc107;">
+                    <p style="margin: 0; font-size: 0.9rem; color: #856404;">
+                        <strong>Môi trường Test:</strong> Đây là QR code giả lập. Trong thực tế, đây sẽ là QR code
+                        thật
+                        từ VNPay.
+                    </p>
+                </div>
+
+                <!-- Buttons -->
+                <div style="display: flex; gap: 1rem; flex-direction: column;">
+                    <button onclick="confirmVNPayQRPaymentMembership()"
+                        style="width: 100%; padding: 1rem; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer;">
+                        Tôi Đã Thanh Toán
+                    </button>
+                    <button onclick="closeVNPayQRModalMembership()"
+                        style="width: 100%; padding: 1rem; background: #6c757d; color: white; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer;">
+                        Hủy Thanh Toán
+                    </button>
+                </div>
+
+                <div style="text-align: center; margin-top: 1rem;">
+                    <p style="font-size: 0.85rem; color: #6c757d;">
+                        1900.5555.77 | hotro@vnpay.vn
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <p>&copy; 2025 Bookshop Green. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="/js/main.js"></script>
+    <script src="/js/auth.js?v=2"></script>
+    <script src="/js/notification.js"></script>
+    <script src="/js/search.js"></script>
+    <script>
+        let selectedMembershipType = null;
+        let selectedDiscount = 0;
+
+        // Check current membership on page load
+        function checkCurrentMembership() {
+            fetch('/membership/api/current', {
+                credentials: 'include'
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    return null;
+                })
+                .then(membership => {
+                    if (membership && membership.status === 'ACTIVE') {
+                        displayCurrentMembership(membership);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking membership:', error);
+                });
+        }
+
+        function displayCurrentMembership(membership) {
+            document.getElementById('currentMembershipSection').style.display = 'block';
+            document.getElementById('currentType').textContent = membership.membershipType;
+            document.getElementById('currentDiscount').textContent = membership.discountPercent + '%';
+
+            const expiryDate = new Date(membership.expiresAt);
+            document.getElementById('currentExpiry').textContent = expiryDate.toLocaleDateString('vi-VN');
+            document.getElementById('currentStatus').textContent = membership.status === 'ACTIVE' ? 'Đang hoạt động' : 'Hết hạn';
+        }
+
+        function selectPlan(type, discount) {
+            selectedMembershipType = type;
+            selectedDiscount = discount;
+
+            document.getElementById('selectedPlanName').textContent = type;
+            document.getElementById('selectedDiscount').textContent = discount;
+            document.getElementById('registrationForm').style.display = 'block';
+            document.getElementById('registrationForm').scrollIntoView({ behavior: 'smooth' });
+
+            // Update price display
+            updatePrice();
+        }
+
+        function updatePrice() {
+            if (!selectedMembershipType) return;
+
+            const months = parseInt(document.getElementById('months').value);
+
+            // Base prices for each membership type
+            const basePrices = {
+                'SILVER': 200000,
+                'GOLD': 400000,
+                'PLATINUM': 600000
+            };
+
+            let price = basePrices[selectedMembershipType];
+
+            // Apply discount for longer periods
+            if (months === 6) {
+                price = price * 0.9; // 10% discount
+            } else if (months === 12) {
+                price = price * 0.8; // 20% discount
+            }
+
+            document.getElementById('priceDisplay').textContent = 'Giá: ' + price.toLocaleString('vi-VN') + ' ₫';
+        }
+
+        function cancelRegistration() {
+            document.getElementById('registrationForm').style.display = 'none';
+            selectedMembershipType = null;
+            selectedDiscount = 0;
+        }
+
+        function submitMembership() {
+            if (!selectedMembershipType) {
+                showError('Lỗi', 'Vui lòng chọn gói thành viên');
+                return;
+            }
+
+            const months = parseInt(document.getElementById('months').value);
+            const bankType = document.getElementById('bankType').value;
+
+            if (!bankType) {
+                showError('Lỗi', 'Vui lòng chọn phương thức thanh toán');
+                return;
+            }
+
+            // Calculate total amount
+            const monthlyFee = 50000;
+            let totalAmount = monthlyFee * months;
+
+            // Apply discount
+            if (months === 6) {
+                totalAmount = totalAmount * 0.9; // 10% discount
+            } else if (months === 12) {
+                totalAmount = totalAmount * 0.8; // 20% discount
+            }
+
+            // If VNPay, show QR code
+            if (bankType === 'VNPAY') {
+                showVNPayQRModalMembership(selectedMembershipType, totalAmount, months);
+                return;
+            }
+
+            // For other payment methods, proceed with registration
+            const membershipData = {
+                membershipType: selectedMembershipType,
+                months: months,
+                bankType: bankType
+            };
+
+            fetch('/membership/api/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(membershipData),
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showSuccess('Đăng Ký Thành Công!', 'Thẻ thành viên của bạn đã được kích hoạt.');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
+                    } else {
+                        showError('Lỗi', data.message || 'Không thể đăng ký thẻ thành viên.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError('Lỗi', 'Không thể kết nối với server. Vui lòng thử lại.');
+                });
+        }
+
+        // VNPay QR Code Functions for Membership
+        let vnpayQRCodeMembership = null;
+        let currentMembershipData = null;
+
+        function showVNPayQRModalMembership(membershipType, amount, months) {
+            // Generate fake QR data for demo
+            const qrData = `VNPAY|MEMBERSHIP|${membershipType}|${amount}|${months}|Bookshop Green|${Date.now()}`;
+            const transactionId = 'VNP' + Date.now();
+
+            // Store membership data for later
+            currentMembershipData = {
+                membershipType: membershipType,
+                months: months,
+                bankType: 'VNPAY',
+                amount: amount,
+                transactionId: transactionId
+            };
+
+            // Update modal info
+            document.getElementById('vnpayQRMembershipType').textContent = membershipType;
+            document.getElementById('vnpayQRAmount').textContent = amount.toLocaleString('vi-VN') + ' ₫';
+            document.getElementById('vnpayQRRefCode').textContent = transactionId;
+
+            // Clear previous QR code
+            const qrContainer = document.getElementById('vnpayQRCode');
+            qrContainer.innerHTML = '';
+
+            // Check if QRCode library is loaded
+            if (typeof QRCode !== 'undefined') {
+                // Generate QR Code
+                vnpayQRCodeMembership = new QRCode(qrContainer, {
+                    text: qrData,
+                    width: 200,
+                    height: 200,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            } else {
+                // Fallback if QRCode library not loaded
+                qrContainer.innerHTML = '<div style="width: 200px; height: 200px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border: 2px dashed #ccc;"><p style="text-align: center; color: #666;">QR Code<br/>Demo</p></div>';
+            }
+
+            // Show modal
+            document.getElementById('vnpayQRModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeVNPayQRModalMembership() {
+            document.getElementById('vnpayQRModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            currentMembershipData = null;
+        }
+
+        function confirmVNPayQRPaymentMembership() {
+            if (!currentMembershipData) {
+                showError('Lỗi', 'Thông tin thanh toán không hợp lệ');
+                return;
+            }
+
+            // Show processing
+            showSuccess('Đang xử lý...', 'Đang xác nhận thanh toán...');
+
+            // Simulate VNPay API call
+            setTimeout(() => {
+                const membershipData = {
+                    membershipType: currentMembershipData.membershipType,
+                    months: currentMembershipData.months,
+                    bankType: currentMembershipData.bankType
+                };
+
+                fetch('/membership/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(membershipData),
+                    credentials: 'include'
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            closeVNPayQRModalMembership();
+                            showSuccess('Thanh Toán Thành Công!', 'Thẻ thành viên của bạn đã được kích hoạt.');
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 2000);
+                        } else {
+                            showError('Lỗi', data.message || 'Xác nhận thanh toán thất bại');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showError('Lỗi', 'Không thể xác nhận thanh toán');
+                    });
+            }, 1500); // Simulate network delay
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function (e) {
+            const vnpayQRModal = document.getElementById('vnpayQRModal');
+            if (e.target === vnpayQRModal) {
+                closeVNPayQRModalMembership();
+            }
+        });
+
+        // Load current membership on page load
+        checkCurrentMembership();
+    </script>
+</body>
+
+</html>

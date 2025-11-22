@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Sách Sách - Bookshop Green</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/index.html" class="navbar-brand">Bookshop Green</a>
+
+            <ul class="nav-menu">
+                <li><a href="/index.html" class="nav-link">Trang Chủ</a></li>
+                <li class="dropdown">
+                    <a href="/books.html" class="nav-link dropdown-toggle">Sách</a>
+                    <div class="dropdown-menu" id="categoryMenu">
+                        <a href="/books.html" class="dropdown-item">Tất Cả Sách</a>
+                    </div>
+                </li>
+                <li><a href="/gift-packages.html" class="nav-link">Mua Tặng Quà</a></li>
+                <li><a href="/cart.html" class="nav-link">Giỏ Hàng</a></li>
+            </ul>
+
+            <!-- Search Bar -->
+            <form id="searchForm" class="header-search">
+                <input type="text" id="searchQuery" placeholder="Tìm kiếm sách..." />
+                <button type="submit">Tìm kiếm</button>
+            </form>
+
+            <div id="authSection" class="auth-section">
+                <!-- Auth content will be loaded here by JavaScript -->
+            </div>
+        </div>
+    </nav>
+
+    <main class="content">
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h1 class="section-title" id="pageTitle" style="margin: 0;">Danh Sách Sách</h1>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <label for="sortSelect" style="font-weight: bold;">Sắp xếp:</label>
+                    <select id="sortSelect" onchange="loadBooksWithSort()"
+                        style="padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                        <option value="">Mặc định</option>
+                        <option value="price-asc">Giá thấp đến cao</option>
+                        <option value="price-desc">Giá cao đến thấp</option>
+                        <option value="rating-desc">Đánh giá cao nhất</option>
+                    </select>
+                </div>
+            </div>
+
+
+
+            <div class="books-grid" id="booksGrid">
+                <!-- Books will be loaded here -->
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <p>&copy; 2025 Bookshop Green. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/auth.js?v=2"></script>
+    <script src="/js/notification.js"></script>
+    <script src="/js/search.js"></script>
+    <script src="/js/books-sort.js"></script>
+
+    <script>
+        // Add to cart function
+        function addToCart(bookId) {
+            // Check if user is logged in
+            fetch('/api/user/check', {
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(user => {
+                    if (!user || !user.authenticated) {
+                        // User not logged in
+                        showError('Vui Lòng Đăng Nhập', 'Bạn cần đăng nhập để thêm sách vào giỏ hàng.');
+                        setTimeout(() => {
+                            window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.href);
+                        }, 2000);
+                        return;
+                    }
+
+                    // User is logged in, proceed with adding to cart
+                    const formData = new URLSearchParams();
+                    formData.append('bookId', bookId);
+                    formData.append('quantity', '1');
+
+                    fetch('/cart/add', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: formData,
+                        credentials: 'include'
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Success - show notification and stay on page
+                                showSuccess('Thêm Vào Giỏ Hàng Thành Công!', 'Sách đã được thêm vào giỏ hàng của bạn.');
+                            } else {
+                                showError('Lỗi', data.message || 'Không thể thêm sách vào giỏ hàng.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showError('Lỗi', 'Không thể thêm sách vào giỏ hàng. Vui lòng thử lại.');
+                        });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError('Lỗi', 'Không thể thêm sách vào giỏ hàng. Vui lòng thử lại.');
+                });
+        }
+
+        function searchBooks() {
+            const query = document.getElementById('searchQuery').value;
+            if (!query) {
+                loadBooksWithSort();
+                return;
+            }
+
+            fetch(`/api/books/search?query=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(books => {
+                    displayBooks(books);
+                    document.getElementById('pageTitle').textContent = `Kết quả tìm kiếm "${query}"`;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    displayBooks([]);
+                });
+        }
+
+        // Check URL parameters and update page title
+        const urlParams = new URLSearchParams(window.location.search);
+        const category = urlParams.get('category');
+        const query = urlParams.get('query') || urlParams.get('search');
+
+        if (query) {
+            document.getElementById('searchQuery').value = query;
+            document.getElementById('pageTitle').textContent = `Kết quả tìm kiếm "${query}"`;
+            // Automatically perform search when page loads with search parameter
+            searchBooks();
+        } else if (category) {
+            document.getElementById('pageTitle').textContent = `${category}`;
+        }
+    </script>
+</body>
+
+</html>
