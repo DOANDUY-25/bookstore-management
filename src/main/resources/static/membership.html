@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng Ký Thẻ Thành Viên - Bookshop Green</title>
+    <title>Đăng Ký Thẻ Thành Viên - Bookshop</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
     <nav class="navbar">
         <div class="container">
-            <a href="/index.html" class="navbar-brand">Bookshop Green</a>
+            <a href="/index.html" class="navbar-brand">Bookshop</a>
 
             <ul class="nav-menu">
                 <li><a href="/index.html" class="nav-link">Trang Chủ</a></li>
@@ -70,88 +70,75 @@
             <!-- Membership Plans -->
             <div style="margin-bottom: 2rem;">
                 <h2 style="color: #2d6a4f; margin-bottom: 1.5rem; text-align: center;">Chọn Gói Thành Viên</h2>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                <div class="membership-plans-grid">
 
                     <!-- Silver Plan -->
                     <div class="membership-card" data-type="SILVER" data-discount="5">
-                        <div
-                            style="background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%); color: white; padding: 1.5rem; border-radius: 12px 12px 0 0; text-align: center;">
+                        <div class="membership-card-header">
                             <h3 style="margin: 0; font-size: 1.8rem;">🥈 SILVER</h3>
                             <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; opacity: 0.9;">Thẻ Bạc</p>
                         </div>
-                        <div
-                            style="background: white; padding: 1.5rem; border-radius: 0 0 12px 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                            <div style="text-align: center; margin-bottom: 1.5rem;">
-                                <p style="margin: 0; font-size: 2rem; font-weight: bold; color: #2d6a4f;">5%</p>
-                                <p style="margin: 0.25rem 0 0 0; color: #6c757d;">Giảm giá</p>
+                        <div class="membership-card-body">
+                            <div class="membership-price">
+                                <p class="membership-price-value">5%</p>
+                                <p class="membership-price-label">Giảm giá</p>
                             </div>
-                            <ul style="list-style: none; padding: 0; margin: 0 0 1.5rem 0;">
-                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Giảm 5% mọi đơn hàng
-                                </li>
-                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Ưu tiên hỗ trợ</li>
-                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Tích điểm thưởng</li>
-                                <li style="padding: 0.5rem 0;">✓ Thông báo sách mới</li>
+                            <ul class="membership-features">
+                                <li>Giảm 5% mọi đơn hàng</li>
+                                <li>Ưu tiên hỗ trợ</li>
+                                <li>Tích điểm thưởng</li>
+                                <li>Thông báo sách mới</li>
                             </ul>
-                            <button onclick="selectPlan('SILVER', 5)" class="btn btn-primary" style="width: 100%;">Chọn
-                                Gói Này</button>
+                            <button onclick="selectPlan('SILVER', 5)" class="btn btn-primary membership-card-button"
+                                style="width: 100%;">Chọn Gói Này</button>
                         </div>
                     </div>
 
                     <!-- Gold Plan -->
-                    <div class="membership-card" data-type="GOLD" data-discount="10">
-                        <div
-                            style="background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: white; padding: 1.5rem; border-radius: 12px 12px 0 0; text-align: center; position: relative;">
-                            <div
-                                style="position: absolute; top: -10px; right: 10px; background: #dc3545; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">
-                                PHỔ BIẾN</div>
+                    <div class="membership-card" data-type="GOLD" data-discount="10" style="position: relative;">
+                        <span class="popular-badge">PHỔ BIẾN</span>
+                        <div class="membership-card-header">
                             <h3 style="margin: 0; font-size: 1.8rem;">🥇 GOLD</h3>
                             <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; opacity: 0.9;">Thẻ Vàng</p>
                         </div>
-                        <div
-                            style="background: white; padding: 1.5rem; border-radius: 0 0 12px 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border: 2px solid #FFD700;">
-                            <div style="text-align: center; margin-bottom: 1.5rem;">
-                                <p style="margin: 0; font-size: 2rem; font-weight: bold; color: #2d6a4f;">10%</p>
-                                <p style="margin: 0.25rem 0 0 0; color: #6c757d;">Giảm giá</p>
+                        <div class="membership-card-body" style="border: 2px solid #FFD700;">
+                            <div class="membership-price">
+                                <p class="membership-price-value">10%</p>
+                                <p class="membership-price-label">Giảm giá</p>
                             </div>
-                            <ul style="list-style: none; padding: 0; margin: 0 0 1.5rem 0;">
-                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Giảm 10% mọi đơn hàng
-                                </li>
-                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Ưu tiên hỗ trợ VIP
-                                </li>
-                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Tích điểm x2</li>
-                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Miễn phí vận chuyển
-                                </li>
-                                <li style="padding: 0.5rem 0;">✓ Quà tặng sinh nhật</li>
+                            <ul class="membership-features">
+                                <li>Giảm 10% mọi đơn hàng</li>
+                                <li>Ưu tiên hỗ trợ VIP</li>
+                                <li>Tích điểm x2</li>
+                                <li>Miễn phí vận chuyển</li>
+                                <li>Quà tặng sinh nhật</li>
                             </ul>
-                            <button onclick="selectPlan('GOLD', 10)" class="btn btn-primary"
-                                style="width: 100%; background: #FFD700; border-color: #FFD700;">Chọn Gói Này</button>
+                            <button onclick="selectPlan('GOLD', 10)" class="btn btn-primary membership-card-button"
+                                style="width: 100%; background: #FFD700; border-color: #FFD700; color: #333;">Chọn Gói
+                                Này</button>
                         </div>
                     </div>
 
                     <!-- Platinum Plan -->
                     <div class="membership-card" data-type="PLATINUM" data-discount="15">
-                        <div
-                            style="background: linear-gradient(135deg, #E5E4E2 0%, #B9B9B9 100%); color: #333; padding: 1.5rem; border-radius: 12px 12px 0 0; text-align: center;">
-                            <h3 style="margin: 0; font-size: 1.8rem;">PLATINUM</h3>
+                        <div class="membership-card-header" style="color: #333;">
+                            <h3 style="margin: 0; font-size: 1.8rem;">💎 PLATINUM</h3>
                             <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; opacity: 0.8;">Thẻ Bạch Kim</p>
                         </div>
-                        <div
-                            style="background: white; padding: 1.5rem; border-radius: 0 0 12px 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                            <div style="text-align: center; margin-bottom: 1.5rem;">
-                                <p style="margin: 0; font-size: 2rem; font-weight: bold; color: #2d6a4f;">15%</p>
-                                <p style="margin: 0.25rem 0 0 0; color: #6c757d;">Giảm giá</p>
+                        <div class="membership-card-body">
+                            <div class="membership-price">
+                                <p class="membership-price-value">15%</p>
+                                <p class="membership-price-label">Giảm giá</p>
                             </div>
-                            <ul style="list-style: none; padding: 0; margin: 0 0 1.5rem 0;">
-                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Giảm 15% mọi đơn hàng
-                                </li>
-                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Hỗ trợ 24/7</li>
-                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Tích điểm x3</li>
-                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Miễn phí vận chuyển
-                                </li>
-                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">✓ Ưu tiên sách mới</li>
-                                <li style="padding: 0.5rem 0;">✓ Sự kiện độc quyền</li>
+                            <ul class="membership-features">
+                                <li>Giảm 15% mọi đơn hàng</li>
+                                <li>Hỗ trợ 24/7</li>
+                                <li>Tích điểm x3</li>
+                                <li>Miễn phí vận chuyển</li>
+                                <li>Ưu tiên sách mới</li>
+                                <li>Sự kiện độc quyền</li>
                             </ul>
-                            <button onclick="selectPlan('PLATINUM', 15)" class="btn btn-primary"
+                            <button onclick="selectPlan('PLATINUM', 15)" class="btn btn-primary membership-card-button"
                                 style="width: 100%;">Chọn Gói Này</button>
                         </div>
                     </div>
@@ -295,7 +282,7 @@
 
     <footer class="footer">
         <div class="container text-center">
-            <p>&copy; 2025 Bookshop Green. All rights reserved.</p>
+            <p>&copy; 2025 Bookshop. All rights reserved.</p>
         </div>
     </footer>
 
