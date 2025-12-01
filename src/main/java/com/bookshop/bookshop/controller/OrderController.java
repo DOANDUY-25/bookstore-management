@@ -68,6 +68,8 @@ public class OrderController {
             orderDTO.setRecipientEmail(shippingInfo.get("recipientEmail"));
             orderDTO.setShippingAddress(shippingInfo.get("shippingAddress"));
             orderDTO.setOrderNotes(shippingInfo.get("orderNotes"));
+            orderDTO.setDeliveryMethod(shippingInfo.get("deliveryMethod"));
+            orderDTO.setPaymentMethod(shippingInfo.get("paymentMethod"));
             
             Order order = orderService.createOrder(user.getUserId(), orderDTO);
             
@@ -110,6 +112,8 @@ public class OrderController {
                 orderDTO.put("recipientEmail", order.getRecipientEmail());
                 orderDTO.put("shippingAddress", order.getShippingAddress());
                 orderDTO.put("orderNotes", order.getOrderNotes());
+                orderDTO.put("shippingFee", order.getShippingFee());
+                orderDTO.put("paymentMethod", order.getPaymentMethod());
                 
                 // Thông tin người đặt hàng (từ User)
                 User orderUser = order.getUser();
@@ -162,6 +166,8 @@ public class OrderController {
             orderDTO.put("recipientEmail", order.getRecipientEmail());
             orderDTO.put("shippingAddress", order.getShippingAddress());
             orderDTO.put("orderNotes", order.getOrderNotes());
+            orderDTO.put("shippingFee", order.getShippingFee());
+            orderDTO.put("paymentMethod", order.getPaymentMethod());
             
             // Thông tin người đặt hàng (từ User)
             User orderUser = order.getUser();
@@ -195,6 +201,36 @@ public class OrderController {
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+    
+    @PostMapping("/{orderId}/pay")
+    @ResponseBody
+    public ResponseEntity<?> payOrder(@PathVariable Integer orderId) {
+        try {
+            Order order = orderService.getOrderById(orderId);
+            
+            // Only allow payment if order is PENDING
+            if (!"PENDING".equals(order.getStatus())) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("success", false);
+                error.put("message", "Cannot pay order with status: " + order.getStatus());
+                return ResponseEntity.badRequest().body(error);
+            }
+            
+            // Update status to CONFIRMED (paid)
+            orderService.updateOrderStatus(orderId, "CONFIRMED");
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Đơn hàng đã được thanh toán");
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", e.getMessage());
             return ResponseEntity.badRequest().body(error);
         }
     }

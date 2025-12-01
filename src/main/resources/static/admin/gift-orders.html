@@ -106,7 +106,7 @@
                     <td>${(o.totalAmount || 0).toLocaleString('vi-VN')} ₫</td>
                     <td><span class="badge badge-${o.status.toLowerCase()}">${o.status}</span></td>
                     <td>
-                        <button class="btn btn-sm btn-primary" onclick="location.href='/gift-order-detail.html?id=${o.orderGiftId}'">Xem</button>
+                        <button class="btn btn-sm btn-primary" onclick="location.href='/admin/gift-order-detail.html?id=${o.orderGiftId}'">Xem</button>
                         ${o.status !== 'CANCELLED' && o.status !== 'DELIVERED' ? `<button class="btn btn-sm btn-danger" onclick="cancelOrder(${o.orderGiftId})">Hủy</button>` : ''}
                     </td>
                 </tr>

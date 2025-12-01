@@ -4,31 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chi Tiết Đơn Quà Tặng - Bookshop</title>
+    <title>Chi Tiết Đơn Quà Tặng - Admin - Bookshop</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
     <nav class="navbar">
         <div class="container">
-            <a href="/index.html" class="navbar-brand">Bookshop</a>
+            <a href="/index.html" class="navbar-brand">Bookshop Admin</a>
 
             <ul class="nav-menu">
-                <li><a href="/index.html" class="nav-link">Trang Chủ</a></li>
-                <li class="dropdown">
-                    <a href="/books.html" class="nav-link dropdown-toggle">Sách</a>
-                    <div class="dropdown-menu" id="categoryMenu">
-                        <a href="/books.html" class="dropdown-item">Tất Cả Sách</a>
-                    </div>
-                </li>
-                <li><a href="/gift-packages.html" class="nav-link">Mua Tặng Quà</a></li>
-                <li><a href="/cart.html" class="nav-link">Giỏ Hàng</a></li>
+                <li><a href="/admin/dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="/admin/books.html" class="nav-link">Quản Lý Sách</a></li>
+                <li><a href="/admin/orders.html" class="nav-link">Quản Lý Đơn Hàng</a></li>
+                <li><a href="/admin/gift-orders.html" class="nav-link">Quản Lý Đơn Quà Tặng</a></li>
+                <li><a href="/admin/users.html" class="nav-link">Quản Lý Users</a></li>
             </ul>
-
-            <form id="searchForm" class="header-search">
-                <input type="text" id="searchQuery" placeholder="Tìm kiếm sách..." />
-                <button type="submit">Tìm kiếm</button>
-            </form>
 
             <div id="authSection" class="auth-section"></div>
         </div>
@@ -37,7 +28,7 @@
     <main class="content">
         <div class="container">
             <div style="margin-bottom: 1.5rem;">
-                <a href="/gift-orders.html" class="btn btn-outline">← Quay Lại Đơn Quà Tặng</a>
+                <a href="/admin/gift-orders.html" class="btn btn-outline">← Quay Lại Quản Lý Đơn Quà Tặng</a>
             </div>
 
             <h1 class="section-title">Chi Tiết Đơn Quà Tặng</h1>
@@ -57,7 +48,6 @@
     <script src="/js/main.js"></script>
     <script src="/js/auth.js?v=2"></script>
     <script src="/js/notification.js"></script>
-    <script src="/js/search.js"></script>
     <script>
         function getOrderIdFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -233,7 +223,7 @@
                 </div>
 
                 <div style="margin-top: 1.5rem; text-align: center;">
-                    <a href="/gift-orders.html" class="btn btn-primary">← Quay Lại Danh Sách Đơn Quà Tặng</a>
+                    <a href="/admin/gift-orders.html" class="btn btn-primary">← Quay Lại Quản Lý Đơn Quà Tặng</a>
                 </div>
             `;
 

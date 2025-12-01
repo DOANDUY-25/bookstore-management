@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -23,16 +24,19 @@ public class GiftOrderServiceImpl implements GiftOrderService {
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
     private final GiftPackageRepository giftPackageRepository;
+    private final MembershipRepository membershipRepository;
 
     public GiftOrderServiceImpl(OrderGiftRepository orderGiftRepository, 
                                OrderGiftDetailRepository orderGiftDetailRepository, 
                                UserRepository userRepository, BookRepository bookRepository, 
-                               GiftPackageRepository giftPackageRepository) {
+                               GiftPackageRepository giftPackageRepository,
+                               MembershipRepository membershipRepository) {
         this.orderGiftRepository = orderGiftRepository;
         this.orderGiftDetailRepository = orderGiftDetailRepository;
         this.userRepository = userRepository;
         this.bookRepository = bookRepository;
         this.giftPackageRepository = giftPackageRepository;
+        this.membershipRepository = membershipRepository;
     }
     
     @Override
@@ -50,6 +54,7 @@ public class GiftOrderServiceImpl implements GiftOrderService {
         orderGift.setMessage(dto.getMessage());
         orderGift.setDeliveryDate(dto.getDeliveryDate());
         orderGift.setDeliveryMethod(dto.getDeliveryMethod());
+        orderGift.setPaymentMethod(dto.getPaymentMethod());
         orderGift.setCreateAt(LocalDateTime.now());
         orderGift.setStatus("PENDING");
         
@@ -69,6 +74,18 @@ public class GiftOrderServiceImpl implements GiftOrderService {
         // Set shipping fee from DTO or use default
         BigDecimal shippingFee = dto.getShippingFee() != null ? 
             BigDecimal.valueOf(dto.getShippingFee()) : BigDecimal.valueOf(30000);
+        
+        // Check if user has GOLD or PLATINUM membership - free shipping
+        Optional<Membership> membershipOpt = membershipRepository.findByUserAndStatus(user, "ACTIVE");
+        if (membershipOpt.isPresent()) {
+            Membership membership = membershipOpt.get();
+            String membershipType = membership.getMembershipType();
+            if ("GOLD".equalsIgnoreCase(membershipType) || "PLATINUM".equalsIgnoreCase(membershipType)) {
+                shippingFee = BigDecimal.ZERO;
+                log.info("Free shipping applied for {} membership", membershipType);
+            }
+        }
+        
         orderGift.setShippingFee(shippingFee);
         totalAmount = totalAmount.add(shippingFee);
         
@@ -122,7 +139,8 @@ public class GiftOrderServiceImpl implements GiftOrderService {
     @Override
     @Transactional(readOnly = true)
     public OrderGift getGiftOrderById(Integer orderGiftId) {
-        return orderGiftRepository.findById(orderGiftId)
+        // Use custom query with JOIN FETCH to eagerly load all related entities
+        return orderGiftRepository.findByIdWithDetails(orderGiftId)
                 .orElseThrow(() -> new ResourceNotFoundException("OrderGift", "id", orderGiftId));
     }
     

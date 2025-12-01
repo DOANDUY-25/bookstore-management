@@ -119,59 +119,48 @@
         function handleAddToCart(event, bookId, maxStock) {
             event.preventDefault();
 
-            // Check if user is logged in
-            fetch('/api/user/current', {
+            const quantity = document.getElementById('quantity').value;
+
+            if (quantity < 1 || quantity > maxStock) {
+                showError('Số Lượng Không Hợp Lệ', `Vui lòng chọn số lượng từ 1 đến ${maxStock}`);
+                return false;
+            }
+
+            // Use AJAX to add to cart
+            const formData = new URLSearchParams();
+            formData.append('bookId', bookId);
+            formData.append('quantity', quantity);
+
+            fetch('/cart/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData,
                 credentials: 'include'
             })
                 .then(response => {
-                    if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
                         // User not logged in
                         showError('Vui Lòng Đăng Nhập', 'Bạn cần đăng nhập để thêm sách vào giỏ hàng.');
                         setTimeout(() => {
                             window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.href);
-                        }, 2000);
+                        }, 1500);
                         return null;
                     }
                     return response.json();
                 })
-                .then(user => {
-                    if (!user) return; // User not logged in, already handled
+                .then(data => {
+                    if (!data) return; // User not logged in, already handled
 
-                    // User is logged in, proceed with adding to cart
-                    const quantity = document.getElementById('quantity').value;
-
-                    if (quantity < 1 || quantity > maxStock) {
-                        showError('Số Lượng Không Hợp Lệ', `Vui lòng chọn số lượng từ 1 đến ${maxStock}`);
-                        return;
+                    if (data.success) {
+                        // Success - show notification and stay on page
+                        showSuccess('Thêm Vào Giỏ Hàng Thành Công!', 'Sách đã được thêm vào giỏ hàng của bạn.');
+                        // Reset quantity to 1
+                        document.getElementById('quantity').value = 1;
+                    } else {
+                        showError('Lỗi', data.message || 'Không thể thêm sách vào giỏ hàng. Vui lòng thử lại.');
                     }
-
-                    // Use AJAX to add to cart without page reload
-                    const formData = new URLSearchParams();
-                    formData.append('bookId', bookId);
-                    formData.append('quantity', quantity);
-
-                    fetch('/cart/add', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: formData,
-                        credentials: 'include'
-                    })
-                        .then(response => {
-                            if (response.ok || response.redirected) {
-                                // Success - show notification and stay on page
-                                showSuccess('Thêm Vào Giỏ Hàng Thành Công!', 'Sách đã được thêm vào giỏ hàng của bạn.');
-                                // Reset quantity to 1
-                                document.getElementById('quantity').value = 1;
-                            } else {
-                                showError('Lỗi', 'Không thể thêm sách vào giỏ hàng. Vui lòng thử lại.');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            showError('Lỗi', 'Không thể thêm sách vào giỏ hàng. Vui lòng thử lại.');
-                        });
                 })
                 .catch(error => {
                     console.error('Error:', error);

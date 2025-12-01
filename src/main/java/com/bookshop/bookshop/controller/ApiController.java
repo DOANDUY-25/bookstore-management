@@ -205,6 +205,7 @@ public class ApiController {
             dto.setRecipientAddress((String) orderData.get("recipientAddress"));
             dto.setMessage((String) orderData.get("message"));
             dto.setDeliveryMethod((String) orderData.get("deliveryMethod"));
+            dto.setPaymentMethod((String) orderData.get("paymentMethod"));
             
             // Parse delivery date if provided
             String deliveryDateStr = (String) orderData.get("deliveryDate");
@@ -273,23 +274,24 @@ public class ApiController {
             
             List<OrderGift> orders = giftOrderService.getGiftOrdersByUser(user.getUserId());
             
-            // Convert to DTO to avoid circular reference and lazy loading issues
-            List<GiftOrderResponseDTO> response = orders.stream()
+            // Convert to Map to include all fields
+            List<Map<String, Object>> response = orders.stream()
                 .map(order -> {
-                    GiftOrderResponseDTO dto = new GiftOrderResponseDTO();
-                    dto.setOrderGiftId(order.getOrderGiftId());
-                    dto.setRecipientName(order.getRecipientName());
-                    dto.setRecipientPhone(order.getRecipientPhone());
-                    dto.setRecipientAddress(order.getRecipientAddress());
-                    dto.setMessage(order.getMessage());
-                    dto.setTotalAmount(order.getTotalAmount());
-                    dto.setStatus(order.getStatus());
-                    dto.setCreateAt(order.getCreateAt());
-                    dto.setDeliveryMethod(order.getDeliveryMethod());
+                    Map<String, Object> dto = new HashMap<>();
+                    dto.put("orderGiftId", order.getOrderGiftId());
+                    dto.put("recipientName", order.getRecipientName());
+                    dto.put("recipientPhone", order.getRecipientPhone());
+                    dto.put("recipientAddress", order.getRecipientAddress());
+                    dto.put("message", order.getMessage());
+                    dto.put("totalAmount", order.getTotalAmount());
+                    dto.put("status", order.getStatus());
+                    dto.put("createAt", order.getCreateAt());
+                    dto.put("deliveryMethod", order.getDeliveryMethod());
+                    dto.put("paymentMethod", order.getPaymentMethod());
                     // Safely get gift package name without triggering lazy load issues
                     try {
                         if (order.getGiftPackage() != null) {
-                            dto.setGiftPackageName(order.getGiftPackage().getPackageName());
+                            dto.put("giftPackageName", order.getGiftPackage().getPackageName());
                         }
                     } catch (Exception ignored) {
                         // Ignore lazy loading exceptions
@@ -317,10 +319,12 @@ public class ApiController {
             
             OrderGift orderGift = giftOrderService.getGiftOrderById(id);
             
-            // Check if order belongs to current user
+            // Check if order belongs to current user or user is admin
             String username = authentication.getName();
             User user = userService.findByUserName(username);
-            if (!orderGift.getUser().getUserId().equals(user.getUserId())) {
+            boolean isAdmin = user.getRole() != null && user.getRole().equals("ADMIN");
+            
+            if (!isAdmin && !orderGift.getUser().getUserId().equals(user.getUserId())) {
                 return ResponseEntity.status(403).build();
             }
             
@@ -338,6 +342,7 @@ public class ApiController {
             orderDTO.put("deliveryDate", orderGift.getDeliveryDate());
             orderDTO.put("shippingFee", orderGift.getShippingFee());
             orderDTO.put("giftWrapFee", orderGift.getGiftWrapFee());
+            orderDTO.put("paymentMethod", orderGift.getPaymentMethod());
             
             // Gift package info
             if (orderGift.getGiftPackage() != null) {
@@ -349,10 +354,91 @@ public class ApiController {
                 orderDTO.put("giftPackage", packageInfo);
             }
             
+            // User info
+            if (orderGift.getUser() != null) {
+                Map<String, Object> userInfo = new HashMap<>();
+                userInfo.put("userName", orderGift.getUser().getUserName());
+                userInfo.put("fullName", orderGift.getUser().getFullName());
+                userInfo.put("email", orderGift.getUser().getEmail());
+                userInfo.put("phone", orderGift.getUser().getPhone());
+                orderDTO.put("user", userInfo);
+            }
+            
+            // Order gift details (books)
+            List<Map<String, Object>> detailsList = new ArrayList<>();
+            if (orderGift.getOrderGiftDetails() != null && !orderGift.getOrderGiftDetails().isEmpty()) {
+                for (var detail : orderGift.getOrderGiftDetails()) {
+                    Map<String, Object> detailDTO = new HashMap<>();
+                    detailDTO.put("orderGiftDetailId", detail.getOrderGiftDetailId());
+                    detailDTO.put("quantity", detail.getQuantity());
+                    detailDTO.put("price", detail.getPrice());
+                    
+                    // Book info
+                    if (detail.getBook() != null) {
+                        Map<String, Object> bookInfo = new HashMap<>();
+                        bookInfo.put("bookId", detail.getBook().getBookId());
+                        bookInfo.put("title", detail.getBook().getTitle());
+                        detailDTO.put("book", bookInfo);
+                    }
+                    
+                    detailsList.add(detailDTO);
+                }
+            }
+            orderDTO.put("orderGiftDetails", detailsList);
+            
             return ResponseEntity.ok(orderDTO);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();
+        }
+    }
+    
+    /**
+     * Pay gift order (VNPay)
+     */
+    @PostMapping("/gift-orders/{id}/pay")
+    public ResponseEntity<?> payGiftOrder(@PathVariable Integer id, Authentication authentication) {
+        try {
+            if (authentication == null || !authentication.isAuthenticated()) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("success", false);
+                error.put("message", "User not authenticated");
+                return ResponseEntity.status(401).body(error);
+            }
+            
+            OrderGift orderGift = giftOrderService.getGiftOrderById(id);
+            
+            // Check if order belongs to current user
+            String username = authentication.getName();
+            User user = userService.findByUserName(username);
+            if (!orderGift.getUser().getUserId().equals(user.getUserId())) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("success", false);
+                error.put("message", "Unauthorized");
+                return ResponseEntity.status(403).body(error);
+            }
+            
+            // Only allow payment if order is PENDING
+            if (!"PENDING".equals(orderGift.getStatus())) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("success", false);
+                error.put("message", "Cannot pay order with status: " + orderGift.getStatus());
+                return ResponseEntity.badRequest().body(error);
+            }
+            
+            // Update status to PAID
+            giftOrderService.updateGiftOrderStatus(id, "PAID");
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Gift order paid successfully");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", e.getMessage());
+            return ResponseEntity.internalServerError().body(error);
         }
     }
     

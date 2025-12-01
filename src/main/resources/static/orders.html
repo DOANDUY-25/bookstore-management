@@ -43,49 +43,7 @@
         </div>
     </main>
 
-    <!-- Payment Modal -->
-    <div id="paymentModal"
-        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
-        <div
-            style="max-width: 500px; margin: 3rem auto; background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
-            <h2 style="color: #2d6a4f; margin-bottom: 1.5rem; text-align: center;">Chọn Phương Thức Thanh Toán</h2>
 
-            <div
-                style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center;">
-                <p style="margin: 0; font-size: 0.9rem; color: #6c757d;">Đơn hàng #<span id="modalOrderId"></span></p>
-                <p style="margin: 0.5rem 0 0 0; font-size: 1.5rem; font-weight: bold; color: #2d6a4f;"
-                    id="modalOrderAmount">0 ₫</p>
-            </div>
-
-            <div style="margin-bottom: 1.5rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #2d6a4f;">
-                    Phương thức thanh toán <span style="color: red;">*</span>
-                </label>
-                <select id="paymentMethod"
-                    style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
-                    <option value="">-- Chọn phương thức --</option>
-                    <option value="COD">Thanh toán khi nhận hàng (COD)</option>
-                    <option value="VNPAY">Thanh toán qua VNPay</option>
-                </select>
-            </div>
-
-            <div id="vnpayInfo"
-                style="display: none; background: #e7f3ff; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #007bff;">
-                <p style="margin: 0; font-size: 0.9rem; color: #004085;">
-                    <strong>Lưu ý:</strong> Bạn sẽ được chuyển đến trang thanh toán VNPay để hoàn tất giao dịch.
-                </p>
-            </div>
-
-            <div style="display: flex; gap: 1rem;">
-                <button onclick="processPayment()" class="btn btn-primary" style="flex: 1;">
-                    Xác Nhận Thanh Toán
-                </button>
-                <button onclick="closePaymentModal()" class="btn btn-outline" style="flex: 1;">
-                    Hủy
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- VNPay QR Code Modal -->
     <div id="vnpayQRModal"
@@ -272,7 +230,9 @@
                         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                             <button onclick="viewOrderDetail(${order.orderId})" class="btn btn-primary btn-sm">Xem Chi Tiết</button>
                             ${order.status === 'PENDING' ? `
-                                <button onclick="showPaymentModal(${order.orderId}, ${order.totalAmount})" class="btn btn-primary btn-sm" style="background: #28a745;">Thanh Toán</button>
+                                ${order.paymentMethod === 'VNPAY' ? `
+                                    <button onclick="showVNPayQRModal(${order.orderId}, ${order.totalAmount})" class="btn btn-primary btn-sm" style="background: #0066cc;">Thanh Toán VNPay</button>
+                                ` : ''}
                                 <button onclick="cancelOrder(${order.orderId})" class="btn btn-outline btn-sm" style="background: #dc3545; color: white;">Hủy Đơn</button>
                             ` : ''}
                         </div>
@@ -333,98 +293,35 @@
                 });
         }
 
-        // Payment Modal Functions
-        let currentOrderId = null;
-        let currentOrderAmount = 0;
+        function confirmVNPayQRPayment() {
+            const orderId = document.getElementById('vnpayQROrderId').textContent;
 
-        function showPaymentModal(orderId, amount) {
-            currentOrderId = orderId;
-            currentOrderAmount = amount;
-
-            document.getElementById('modalOrderId').textContent = orderId;
-            document.getElementById('modalOrderAmount').textContent = amount.toLocaleString('vi-VN') + ' ₫';
-            document.getElementById('paymentMethod').value = '';
-            document.getElementById('vnpayInfo').style.display = 'none';
-            document.getElementById('paymentModal').style.display = 'block';
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closePaymentModal() {
-            document.getElementById('paymentModal').style.display = 'none';
-            document.body.style.overflow = 'auto';
-            currentOrderId = null;
-            currentOrderAmount = 0;
-        }
-
-        // Show VNPay info when selected
-        document.addEventListener('DOMContentLoaded', function () {
-            const paymentMethodSelect = document.getElementById('paymentMethod');
-            if (paymentMethodSelect) {
-                paymentMethodSelect.addEventListener('change', function () {
-                    const vnpayInfo = document.getElementById('vnpayInfo');
-                    if (this.value === 'VNPAY') {
-                        vnpayInfo.style.display = 'block';
-                    } else {
-                        vnpayInfo.style.display = 'none';
-                    }
-                });
-            }
-        });
-
-        function processPayment() {
-            const paymentMethod = document.getElementById('paymentMethod').value;
-
-            if (!paymentMethod) {
-                showError('Lỗi', 'Vui lòng chọn phương thức thanh toán');
-                return;
-            }
-
-            console.log('processPayment:', { paymentMethod, currentOrderId, currentOrderAmount });
-
-            if (paymentMethod === 'COD') {
-                // COD Payment
-                processCODPayment();
-            } else if (paymentMethod === 'VNPAY') {
-                // VNPay Payment with QR Code
-                // Save values before closing modal (which resets them)
-                const orderId = currentOrderId;
-                const amount = currentOrderAmount;
-                closePaymentModal();
-                showVNPayQRModal(orderId, amount);
-            }
-        }
-
-        function processCODPayment() {
-            fetch(`/payment/cod/${currentOrderId}`, {
+            // Call API to update order status to CONFIRMED
+            fetch(`/orders/${orderId}/pay`, {
                 method: 'POST',
                 credentials: 'include'
             })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        closePaymentModal();
-                        showSuccess('Đặt Hàng Thành Công!', 'Đơn hàng sẽ được thanh toán khi nhận hàng.');
+                        closeVNPayQRModal();
+                        showSuccess('Thanh Toán Thành Công!', 'Đơn hàng đã được thanh toán qua VNPay.');
                         setTimeout(() => {
                             loadOrders();
-                        }, 2000);
+                        }, 1500);
                     } else {
-                        showError('Lỗi', data.message || 'Không thể xử lý thanh toán.');
+                        showError('Lỗi', data.message || 'Không thể xác nhận thanh toán.');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showError('Lỗi', 'Không thể xử lý thanh toán. Vui lòng thử lại.');
+                    showError('Lỗi', 'Không thể xác nhận thanh toán. Vui lòng thử lại.');
                 });
         }
 
-        // Close modals when clicking outside
+        // Close modal when clicking outside
         document.addEventListener('click', function (e) {
-            const paymentModal = document.getElementById('paymentModal');
             const vnpayQRModal = document.getElementById('vnpayQRModal');
-
-            if (e.target === paymentModal) {
-                closePaymentModal();
-            }
             if (e.target === vnpayQRModal) {
                 closeVNPayQRModal();
             }

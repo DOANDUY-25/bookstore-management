@@ -57,6 +57,14 @@ public class Order {
     @Column(name = "orderNotes", length = 1000)
     private String orderNotes;
     
+    @DecimalMin(value = "0.0", message = "Shipping fee must be at least 0")
+    @Digits(integer = 10, fraction = 2, message = "Shipping fee must have at most 10 integer digits and 2 decimal places")
+    @Column(name = "shippingFee", precision = 12, scale = 2)
+    private BigDecimal shippingFee;
+    
+    @Column(name = "paymentMethod", length = 50)
+    private String paymentMethod;
+    
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<OrderItem> orderItems = new ArrayList<>();
     
@@ -76,7 +84,7 @@ public class Order {
     public Order(Integer orderId, User user, OrderGift orderGift, LocalDateTime orderDate, 
                  String status, BigDecimal totalAmount, List<OrderItem> orderItems,
                  String recipientName, String recipientPhone, String recipientEmail,
-                 String shippingAddress, String orderNotes) {
+                 String shippingAddress, String orderNotes, BigDecimal shippingFee) {
         this.orderId = orderId;
         this.user = user;
         this.orderGift = orderGift;
@@ -89,6 +97,7 @@ public class Order {
         this.recipientEmail = recipientEmail;
         this.shippingAddress = shippingAddress;
         this.orderNotes = orderNotes;
+        this.shippingFee = shippingFee;
     }
 
     // Getters and Setters
@@ -186,5 +195,21 @@ public class Order {
 
     public void setOrderNotes(String orderNotes) {
         this.orderNotes = orderNotes;
+    }
+
+    public BigDecimal getShippingFee() {
+        return shippingFee;
+    }
+
+    public void setShippingFee(BigDecimal shippingFee) {
+        this.shippingFee = shippingFee;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 }

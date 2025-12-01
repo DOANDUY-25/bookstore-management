@@ -90,6 +90,30 @@ public class GiftOrderController {
     }
     
     // API Endpoints
+    @PostMapping("/api/create")
+    @ResponseBody
+    public ResponseEntity<?> createGiftOrderAPI(@RequestBody GiftOrderCreateDTO dto) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String username = auth.getName();
+            
+            User user = userService.findByUserName(username);
+            OrderGift orderGift = giftOrderService.createGiftOrder(user.getUserId(), dto);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Đơn quà tặng đã được tạo thành công");
+            response.put("orderGiftId", orderGift.getOrderGiftId());
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+    
     @GetMapping("/api/my-orders")
     @ResponseBody
     public ResponseEntity<?> getMyGiftOrders() {
@@ -146,6 +170,8 @@ public class GiftOrderController {
             orderDTO.put("recipientPhone", order.getRecipientPhone());
             orderDTO.put("recipientAddress", order.getRecipientAddress());
             orderDTO.put("message", order.getMessage());
+            orderDTO.put("giftWrapFee", order.getGiftWrapFee());
+            orderDTO.put("shippingFee", order.getShippingFee());
             
             // Gift package info
             Map<String, Object> packageInfo = new HashMap<>();
@@ -163,6 +189,28 @@ public class GiftOrderController {
             userInfo.put("email", orderUser.getEmail());
             userInfo.put("phone", orderUser.getPhone());
             orderDTO.put("user", userInfo);
+            
+            // Order gift details (books)
+            List<Map<String, Object>> detailsList = new ArrayList<>();
+            if (order.getOrderGiftDetails() != null && !order.getOrderGiftDetails().isEmpty()) {
+                for (var detail : order.getOrderGiftDetails()) {
+                    Map<String, Object> detailDTO = new HashMap<>();
+                    detailDTO.put("orderGiftDetailId", detail.getOrderGiftDetailId());
+                    detailDTO.put("quantity", detail.getQuantity());
+                    detailDTO.put("price", detail.getPrice());
+                    
+                    // Book info
+                    if (detail.getBook() != null) {
+                        Map<String, Object> bookInfo = new HashMap<>();
+                        bookInfo.put("bookId", detail.getBook().getBookId());
+                        bookInfo.put("title", detail.getBook().getTitle());
+                        detailDTO.put("book", bookInfo);
+                    }
+                    
+                    detailsList.add(detailDTO);
+                }
+            }
+            orderDTO.put("orderGiftDetails", detailsList);
             
             return ResponseEntity.ok(orderDTO);
         } catch (Exception e) {

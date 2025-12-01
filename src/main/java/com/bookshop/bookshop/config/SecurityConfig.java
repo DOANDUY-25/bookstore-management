@@ -53,6 +53,8 @@ public class SecurityConfig {
                 // Admin endpoints
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                // Auth endpoints - MUST BE PUBLIC
+                .requestMatchers("/auth/register", "/auth/login").permitAll()
                 // Public pages
                 .requestMatchers("/login.html", "/register.html", "/login", "/register").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/*.html").permitAll()

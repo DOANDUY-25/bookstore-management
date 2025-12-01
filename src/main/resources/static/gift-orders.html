@@ -233,7 +233,9 @@
                     <div style="display: flex; gap: 10px; margin-top: 15px;">
                         <button onclick="viewGiftOrderDetail(${order.orderGiftId})" class="btn btn-primary">Xem Chi Tiết</button>
                         ${order.status === 'PENDING' ? `
-                            <button onclick="payGiftOrder(${order.orderGiftId})" class="btn btn-success">Thanh Toán</button>
+                            ${order.paymentMethod === 'VNPAY' ? `
+                                <button onclick="showVNPayQRModal(${order.orderGiftId}, ${order.totalAmount})" class="btn btn-success" style="background: #0066cc;">Thanh Toán VNPay</button>
+                            ` : ''}
                             <button onclick="cancelGiftOrder(${order.orderGiftId})" class="btn btn-danger">Hủy Đơn</button>
                         ` : ''}
                     </div>
@@ -367,6 +369,32 @@
                 closeVNPayQRModal();
             }
         });
+
+        function confirmVNPayQRPayment() {
+            const orderId = document.getElementById('vnpayQROrderId').textContent;
+
+            // Call API to update order status to PAID
+            fetch(`/api/gift-orders/${orderId}/pay`, {
+                method: 'POST',
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        closeVNPayQRModal();
+                        showSuccess('Thanh Toán Thành Công!', 'Đơn hàng đã được thanh toán qua VNPay.');
+                        setTimeout(() => {
+                            loadGiftOrders();
+                        }, 1500);
+                    } else {
+                        showError('Lỗi', data.message || 'Không thể xác nhận thanh toán.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError('Lỗi', 'Không thể xác nhận thanh toán. Vui lòng thử lại.');
+                });
+        }
 
         function cancelGiftOrder(orderId) {
             if (confirm('Bạn có chắc muốn hủy đơn quà tặng này?')) {

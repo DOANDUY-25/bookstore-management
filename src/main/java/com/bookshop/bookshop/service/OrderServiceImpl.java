@@ -56,6 +56,23 @@ public class OrderServiceImpl implements OrderService {
         order.setRecipientEmail(dto.getRecipientEmail());
         order.setShippingAddress(dto.getShippingAddress());
         order.setOrderNotes(dto.getOrderNotes());
+        order.setPaymentMethod(dto.getPaymentMethod());
+        
+        // Calculate shipping fee based on delivery method
+        BigDecimal shippingFee = calculateShippingFee(dto.getDeliveryMethod());
+        
+        // Check if user has GOLD or PLATINUM membership - free shipping
+        Optional<Membership> activeMembershipOpt = membershipRepository.findByUserAndStatus(user, "ACTIVE");
+        if (activeMembershipOpt.isPresent()) {
+            Membership membership = activeMembershipOpt.get();
+            String membershipType = membership.getMembershipType();
+            if ("GOLD".equalsIgnoreCase(membershipType) || "PLATINUM".equalsIgnoreCase(membershipType)) {
+                shippingFee = BigDecimal.ZERO;
+                log.info("Free shipping applied for {} membership", membershipType);
+            }
+        }
+        
+        order.setShippingFee(shippingFee);
         
         BigDecimal totalAmount = BigDecimal.ZERO;
         
@@ -96,6 +113,9 @@ public class OrderServiceImpl implements OrderService {
             totalAmount = totalAmount.subtract(discount).setScale(2, java.math.RoundingMode.HALF_UP);
             log.info("Applied membership discount: {}% - Discount amount: {}", membership.getDiscountPercent(), discount);
         }
+        
+        // Add shipping fee to total
+        totalAmount = totalAmount.add(shippingFee);
         
         order.setTotalAmount(totalAmount);
         
@@ -162,5 +182,22 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
         
         log.info("Order cancelled successfully");
+    }
+    
+    private BigDecimal calculateShippingFee(String deliveryMethod) {
+        if (deliveryMethod == null) {
+            return BigDecimal.ZERO;
+        }
+        
+        switch (deliveryMethod) {
+            case "STANDARD":
+                return BigDecimal.ZERO; // Free shipping
+            case "EXPRESS":
+                return BigDecimal.valueOf(30000);
+            case "SAME_DAY":
+                return BigDecimal.valueOf(50000);
+            default:
+                return BigDecimal.ZERO;
+        }
     }
 }

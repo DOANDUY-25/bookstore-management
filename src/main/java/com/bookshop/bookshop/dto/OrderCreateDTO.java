@@ -16,6 +16,8 @@ public class OrderCreateDTO {
     private String recipientEmail;
     private String shippingAddress;
     private String orderNotes;
+    private String deliveryMethod;
+    private String paymentMethod;
 
     // Constructors
     public OrderCreateDTO() {}
@@ -71,5 +73,21 @@ public class OrderCreateDTO {
 
     public void setOrderNotes(String orderNotes) {
         this.orderNotes = orderNotes;
+    }
+
+    public String getDeliveryMethod() {
+        return deliveryMethod;
+    }
+
+    public void setDeliveryMethod(String deliveryMethod) {
+        this.deliveryMethod = deliveryMethod;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 }

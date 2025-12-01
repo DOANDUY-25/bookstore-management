@@ -105,10 +105,48 @@
                                 style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; resize: vertical;"></textarea>
                         </div>
 
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #2d6a4f;">
+                                Phương Thức Vận Chuyển <span style="color: red;">*</span>
+                            </label>
+                            <select id="deliveryMethod" required
+                                style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
+                                <option value="">-- Chọn phương thức vận chuyển --</option>
+                                <option value="STANDARD">Giao hàng tiêu chuẩn (3-5 ngày)</option>
+                                <option value="EXPRESS">Giao hàng nhanh (1-2 ngày)</option>
+                                <option value="SAME_DAY">Giao hàng trong ngày</option>
+                            </select>
+                        </div>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #2d6a4f;">
+                                Phương Thức Thanh Toán <span style="color: red;">*</span>
+                            </label>
+                            <select id="paymentMethod" required
+                                style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
+                                <option value="">-- Chọn phương thức thanh toán --</option>
+                                <option value="COD">Thanh toán khi nhận hàng (COD)</option>
+                                <option value="VNPAY">VNPay</option>
+                            </select>
+                        </div>
+
                         <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
                             <h4 style="color: #2d6a4f; margin-bottom: 0.5rem;">Tổng Thanh Toán</h4>
-                            <p style="font-size: 1.5rem; font-weight: bold; color: #2d6a4f; margin: 0;"
-                                id="modalTotalPrice">0 ₫</p>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>Tạm tính:</span>
+                                <span id="modalSubtotal">0 ₫</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>Phí vận chuyển:</span>
+                                <span id="modalShippingFee">0 ₫</span>
+                            </div>
+                            <div style="border-top: 2px solid #2d6a4f; padding-top: 0.5rem; margin-top: 0.5rem;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="font-weight: bold;">Tổng cộng:</span>
+                                    <span style="font-size: 1.5rem; font-weight: bold; color: #2d6a4f;"
+                                        id="modalTotalPrice">0 ₫</span>
+                                </div>
+                            </div>
                         </div>
 
                         <div style="display: flex; gap: 1rem;">
@@ -277,16 +315,53 @@
             }
         }
 
+        let currentCart = null;
+
         function showCheckoutForm() {
             // Show modal
             document.getElementById('checkoutModal').style.display = 'block';
 
             // Copy total price to modal
             const totalPrice = document.getElementById('totalPrice').textContent;
+            document.getElementById('modalSubtotal').textContent = totalPrice;
+            document.getElementById('modalShippingFee').textContent = '0 ₫';
             document.getElementById('modalTotalPrice').textContent = totalPrice;
 
             // Prevent body scroll
             document.body.style.overflow = 'hidden';
+        }
+
+        // Update shipping fee when delivery method changes
+        document.addEventListener('DOMContentLoaded', function () {
+            const deliveryMethodSelect = document.getElementById('deliveryMethod');
+            if (deliveryMethodSelect) {
+                deliveryMethodSelect.addEventListener('change', function () {
+                    updateShippingFee(this.value);
+                });
+            }
+        });
+
+        function updateShippingFee(deliveryMethod) {
+            let shippingFee = 0;
+
+            switch (deliveryMethod) {
+                case 'STANDARD':
+                    shippingFee = 0; // Free shipping
+                    break;
+                case 'EXPRESS':
+                    shippingFee = 30000;
+                    break;
+                case 'SAME_DAY':
+                    shippingFee = 50000;
+                    break;
+            }
+
+            const subtotalText = document.getElementById('modalSubtotal').textContent;
+            const subtotal = parseInt(subtotalText.replace(/[^\d]/g, ''));
+            const total = subtotal + shippingFee;
+
+            document.getElementById('modalShippingFee').textContent = shippingFee.toLocaleString('vi-VN') + ' ₫';
+            document.getElementById('modalTotalPrice').textContent = total.toLocaleString('vi-VN') + ' ₫';
         }
 
         function closeCheckoutForm() {
@@ -309,7 +384,9 @@
                         recipientPhone: document.getElementById('recipientPhone').value,
                         recipientEmail: document.getElementById('recipientEmail').value,
                         shippingAddress: document.getElementById('shippingAddress').value,
-                        orderNotes: document.getElementById('orderNotes').value
+                        orderNotes: document.getElementById('orderNotes').value,
+                        deliveryMethod: document.getElementById('deliveryMethod').value,
+                        paymentMethod: document.getElementById('paymentMethod').value
                     };
 
                     checkout(formData);
@@ -318,12 +395,18 @@
         });
 
         function checkout(shippingInfo) {
+            // Add deliveryMethod to the request
+            const orderData = {
+                ...shippingInfo,
+                deliveryMethod: shippingInfo.deliveryMethod
+            };
+
             fetch('/orders/create', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(shippingInfo),
+                body: JSON.stringify(orderData),
                 credentials: 'include'
             })
                 .then(response => response.json())

@@ -38,6 +38,9 @@ public class GiftOrderCreateDTO {
     private String deliveryMethod;
     
     private Integer shippingFee;
+    
+    @Size(max = 50, message = "Payment method must not exceed 50 characters")
+    private String paymentMethod;
 
     // Constructors
     public GiftOrderCreateDTO() {}
@@ -126,5 +129,13 @@ public class GiftOrderCreateDTO {
 
     public void setShippingFee(Integer shippingFee) {
         this.shippingFee = shippingFee;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 }
